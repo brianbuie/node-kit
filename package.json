@@ -1,0 +1,35 @@
+{
+  "name": "@brianbuie/node-kit",
+  "version": "0.0.0",
+  "license": "ISC",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/brianbuie/node-kit.git"
+  },
+  "scripts": {
+    "test": "tsc && node --test \".dist/**/*.test.js\"",
+    "preversion": "npm test",
+    "postversion": "git push --follow-tags"
+  },
+  "type": "module",
+  "exports": {
+    ".": "./.dist/_index.js"
+  },
+  "files": [
+    "src",
+    ".dist",
+    "!.dist/**/*.test.*",
+    "README.md"
+  ],
+  "engines": {
+    "node": ">=24"
+  },
+  "dependencies": {
+    "@types/lodash-es": "^4.17.12",
+    "@types/node": "^24.9.1",
+    "lodash-es": "^4.17.21"
+  },
+  "devDependencies": {
+    "typescript": "^5.9.3"
+  }
+}
