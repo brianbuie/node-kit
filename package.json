@@ -29,6 +29,7 @@
     "@types/lodash-es": "^4.17.12",
     "@types/node": "^24.9.1",
     "chalk": "^5.6.2",
+    "extract-domain": "^5.0.2",
     "jsonwebtoken": "^9.0.2",
     "lodash-es": "^4.17.21"
   },

@@ -1,8 +1,9 @@
 import { merge } from 'lodash-es';
+import extractDomain from 'extract-domain';
 
 export type Route = string | URL;
 
-export type Query = Record<string, string | number | boolean | undefined>;
+export type Query = Record<string, string | number | boolean | null | undefined>;
 
 export type FetchOptions = RequestInit & {
   base?: string;
@@ -31,14 +32,40 @@ export class Fetcher {
     this.defaultOptions = merge(defaultOptions, opts);
   }
 
-  makeUrl(route: Route, query: Query = {}) {
-    const params = new URLSearchParams(
-      Object.entries(query)
-        .filter(([_k, val]) => Boolean(val))
-        .map(([key, val]) => [key, `${val}`])
-    ).toString();
-    const search = params ? '?' + params : '';
-    return new URL(route + search, this.defaultOptions.base);
+  /**
+   * Build URL with URLSearchParams if query is provided
+   * Also returns domain, to help with cookies
+   */
+  buildUrl(route: Route, opts: FetchOptions = {}): [URL, string] {
+    const mergedOptions = merge({}, this.defaultOptions, opts);
+    const params = Object.entries(mergedOptions.query || {})
+      .filter(([_k, val]) => val !== undefined)
+      .map(([key, val]) => [key, `${val}`]);
+    const search = params.length > 0 ? '?' + new URLSearchParams(params).toString() : '';
+    const url = new URL(route + search, this.defaultOptions.base);
+    const domain = extractDomain(url.href) as string;
+    return [url, domain];
+  }
+
+  /**
+   * Builds request, merging defaultOptions and provided options
+   * Includes Abort signal for timeout
+   */
+  buildRequest(route: Route, opts: FetchOptions = {}): [Request, FetchOptions, string] {
+    const mergedOptions = merge({}, this.defaultOptions, opts);
+    const { query, data, timeout, retries, ...init } = mergedOptions;
+    if (data) {
+      init.headers = init.headers || {};
+      init.headers['content-type'] = init.headers['content-type'] || 'application/json';
+      init.method = init.method || 'POST';
+      init.body = JSON.stringify(data);
+    }
+    if (timeout) {
+      init.signal = AbortSignal.timeout(timeout);
+    }
+    const [url, domain] = this.buildUrl(route, mergedOptions);
+    const req = new Request(url, init);
+    return [req, mergedOptions, domain];
   }
 
   /**
@@ -47,35 +74,28 @@ export class Fetcher {
    * Retries on local or network error, with increasing backoff
    */
   async fetch(route: Route, opts: FetchOptions = {}): Promise<[Response, Request]> {
-    const { query, data, timeout, retries, ...o } = merge({}, this.defaultOptions, opts);
-    if (data) {
-      o.headers = o.headers || {};
-      o.headers['content-type'] = o.headers['content-type'] || 'application/json';
-      o.method = o.method || 'POST';
-      o.body = JSON.stringify(data);
-    }
-    const url = this.makeUrl(route, query);
-
-    const attempts = retries + 1;
-    let attempted = 0;
-    while (attempted < attempts) {
-      attempted++;
-      const req = new Request(url, { ...o, signal: AbortSignal.timeout(timeout) });
+    const [_req, options] = this.buildRequest(route, opts);
+    const maxAttempts = (options.retries || 0) + 1;
+    let attempt = 0;
+    while (attempt < maxAttempts) {
+      attempt++;
+      // Rebuild request on every attempt to reset AbortSignal.timeout
+      const [req] = this.buildRequest(route, opts);
       const res = await fetch(req)
         .then(r => {
           if (!r.ok) throw new Error(r.statusText);
           return r;
         })
         .catch(async error => {
-          if (attempted < attempts) {
-            const wait = attempted * 3000;
-            console.warn(`Fetcher (attempt ${attempted} of ${attempts})`, error);
+          if (attempt < maxAttempts) {
+            const wait = attempt * 3000;
+            console.warn(`${req.method} ${req.url} (attempt ${attempt} of ${maxAttempts})`, error);
             await new Promise(resolve => setTimeout(resolve, wait));
           }
         });
       if (res) return [res, req];
     }
-    throw new Error(`Failed to fetch ${url.href}`);
+    throw new Error(`Failed to fetch ${_req.url}`);
   }
 
   async fetchText(route: Route, opts: FetchOptions = {}): Promise<[string, Response, Request]> {
