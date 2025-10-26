@@ -3,7 +3,8 @@ import extractDomain from 'extract-domain';
 
 export type Route = string | URL;
 
-export type Query = Record<string, string | number | boolean | null | undefined>;
+type QueryVal = string | number | boolean | null | undefined;
+export type Query = Record<string, QueryVal | QueryVal[]>;
 
 export type FetchOptions = RequestInit & {
   base?: string;
@@ -38,9 +39,17 @@ export class Fetcher {
    */
   buildUrl(route: Route, opts: FetchOptions = {}): [URL, string] {
     const mergedOptions = merge({}, this.defaultOptions, opts);
-    const params = Object.entries(mergedOptions.query || {})
-      .filter(([_k, val]) => val !== undefined)
-      .map(([key, val]) => [key, `${val}`]);
+    const params: [string, string][] = [];
+    Object.entries(mergedOptions.query || {}).forEach(([key, val]) => {
+      if (val === undefined) return;
+      if (Array.isArray(val)) {
+        val.forEach(v => {
+          params.push([key, `${v}`]);
+        });
+      } else {
+        params.push([key, `${val}`]);
+      }
+    });
     const search = params.length > 0 ? '?' + new URLSearchParams(params).toString() : '';
     const url = new URL(route + search, this.defaultOptions.base);
     const domain = extractDomain(url.href) as string;

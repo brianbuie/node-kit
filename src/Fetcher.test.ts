@@ -50,6 +50,12 @@ describe('Fetcher', () => {
     assert(url.href === statusApi.defaultOptions.base + route);
   });
 
+  it('should handle array query param', () => {
+    const [url] = statusApi.buildUrl('/', { query: { multiple: [1, 2] } });
+    assert(url.href.includes('multiple=1'));
+    assert(url.href.includes('multiple=2'));
+  });
+
   it('should throw on bad request', async () => {
     try {
       await statusApi.fetch('/404', { retries: 0 });
