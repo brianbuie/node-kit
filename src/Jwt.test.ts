@@ -4,7 +4,7 @@ import jsonwebtoken from 'jsonwebtoken';
 import { Jwt } from './Jwt.js';
 
 describe('Jwt', () => {
-  it('should create a valid JWT', () => {
+  it('Creates a valid JWT', () => {
     const key = 'test';
     const jwt = new Jwt({
       payload: {

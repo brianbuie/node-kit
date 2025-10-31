@@ -3,7 +3,7 @@ import assert from 'node:assert';
 import { Log } from './Log.js';
 
 describe('Log', () => {
-  it('should throw error', () => {
+  it('Throws error', () => {
     try {
       Log.error('Test error');
     } catch (e) {
@@ -12,16 +12,16 @@ describe('Log', () => {
     assert(false, 'Did not throw error');
   });
 
-  it('should recognize this is a test', () => {
+  it('Recognizes this is a test', () => {
     assert(Log.isTest);
   });
 
-  it('should use first argument as message when string', () => {
+  it('Uses first argument as message when string', () => {
     const result = Log.prepare('test', { something: 'else' });
     assert(result.message === 'test');
   });
 
-  it('should use message prop when provided', () => {
+  it('Uses message prop when provided', () => {
     const result = Log.prepare({ message: 'test', something: 'else' });
     assert(result.message === 'test');
   });

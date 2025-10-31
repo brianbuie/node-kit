@@ -3,7 +3,7 @@ import assert from 'node:assert';
 import { snapshot } from './snapshot.js';
 
 describe('snapshot', () => {
-  it('should capture Error details', () => {
+  it('Captures Error details', () => {
     try {
       throw new Error('Test Error');
     } catch (e) {
@@ -13,21 +13,21 @@ describe('snapshot', () => {
     }
   });
 
-  it('should capture Map values', () => {
+  it('Captures Map values', () => {
     const test = new Map<string, string>();
     test.set('key', 'value');
     const shot = JSON.parse(JSON.stringify(snapshot(test))) as Record<string, string>;
     assert(shot.key === 'value');
   });
 
-  it('should capture Request values', () => {
+  it('Captures Request values', () => {
     const test = new Request('https://www.google.com', { headers: { example: 'value' } });
     const shot = JSON.parse(JSON.stringify(snapshot(test))) as Record<string, any>;
     assert(shot.url !== undefined);
     assert(shot.headers.example === 'value');
   });
 
-  it('should ignore functions', () => {
+  it('Ignores functions', () => {
     const test = { func: () => null };
     const shot = snapshot(test) as Record<string, any>;
     assert(shot.func === undefined);
