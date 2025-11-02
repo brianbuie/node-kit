@@ -25,9 +25,6 @@
     "node": ">=24"
   },
   "dependencies": {
-    "@types/jsonwebtoken": "^9.0.10",
-    "@types/lodash-es": "^4.17.12",
-    "@types/node": "^24.9.1",
     "chalk": "^5.6.2",
     "extract-domain": "^5.0.2",
     "jsonwebtoken": "^9.0.2",
@@ -36,6 +33,9 @@
     "sanitize-filename": "^1.6.3"
   },
   "devDependencies": {
+    "@types/jsonwebtoken": "^9.0.10",
+    "@types/lodash-es": "^4.17.12",
+    "@types/node": "^24.9.1",
     "typescript": "^5.9.3"
   }
 }
