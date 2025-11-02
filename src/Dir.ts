@@ -45,7 +45,7 @@ export class Dir {
    * const filepath = folder.resolve('file.json');
    * // 'example/file.json'
    */
-  resolve(base: string) {
+  filepath(base: string) {
     return path.resolve(this.path, this.sanitize(base));
   }
 
@@ -60,7 +60,7 @@ export class Dir {
       if (!/\.json$/.test(base)) base += '.json';
       contents = JSON.stringify(snapshot(contents), null, 2);
     }
-    const filepath = this.resolve(base);
+    const filepath = this.filepath(base);
     this.make();
     fs.writeFileSync(filepath, contents);
     return filepath;

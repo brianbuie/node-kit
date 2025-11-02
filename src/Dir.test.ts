@@ -22,4 +22,10 @@ describe('Dir', () => {
     const sub = temp.subDir('example');
     assert(sub instanceof TempDir);
   });
+
+  it('Resolves filenames in folder', () => {
+    const txt = temp.filepath('test.txt');
+    assert(txt.includes(temp.path));
+    assert(txt.includes('test.txt'));
+  });
 });
