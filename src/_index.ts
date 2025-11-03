@@ -1,4 +1,5 @@
 export { Dir, TempDir, temp } from './Dir.js';
+export { Cache } from './Cache.js';
 export { Fetcher, type Route, Query, FetchOptions } from './Fetcher.js';
 export { File } from './File.js';
 export { Jwt } from './Jwt.js';
