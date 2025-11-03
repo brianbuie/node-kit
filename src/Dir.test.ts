@@ -3,18 +3,18 @@ import assert from 'node:assert';
 import { Dir, TempDir, temp } from './Dir.js';
 
 describe('Dir', () => {
-  const test = new Dir('test');
+  const testDir = temp.subDir('dir-test');
 
   it('Sanitizes filenames', () => {
-    const name = test.sanitize(':/something/else.json');
+    const name = testDir.sanitize(':/something/else.json');
     assert(!name.includes('/'));
     assert(!name.includes(':'));
   });
 
   it('Creates sub directories', () => {
     const subPath = 'sub/dir';
-    const sub = test.subDir(subPath);
-    assert(sub.path.includes(test.path));
+    const sub = testDir.subDir(subPath);
+    assert(sub.path.includes(testDir.path));
     assert(sub.path.includes(subPath));
   });
 

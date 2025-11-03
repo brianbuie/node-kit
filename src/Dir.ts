@@ -1,6 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 import sanitizeFilename from 'sanitize-filename';
+import { File } from './File.js';
 import { snapshot } from './snapshot.js';
 
 /**
@@ -17,7 +18,7 @@ export class Dir {
     this.path = _path;
   }
 
-  make() {
+  create() {
     fs.mkdirSync(this.path, { recursive: true });
   }
 
@@ -49,21 +50,8 @@ export class Dir {
     return path.resolve(this.path, this.sanitize(base));
   }
 
-  /**
-   * Save something in this Dir
-   * @param base filename with extension. `.json` will be used if base doesn't include an ext.
-   * @param contents `string`, or `any` if it's a json file
-   * @returns the filepath of the saved file
-   */
-  save(base: string, contents: any) {
-    if (typeof contents !== 'string') {
-      if (!/\.json$/.test(base)) base += '.json';
-      contents = JSON.stringify(snapshot(contents), null, 2);
-    }
-    const filepath = this.filepath(base);
-    this.make();
-    fs.writeFileSync(filepath, contents);
-    return filepath;
+  file(base: string) {
+    return new File(this.filepath(base));
   }
 }
 
@@ -77,6 +65,7 @@ export class TempDir extends Dir {
 
   clear() {
     fs.rmSync(this.path, { recursive: true, force: true });
+    this.create();
   }
 }
 
