@@ -1,6 +1,7 @@
 import { describe, it } from 'node:test';
 import assert from 'node:assert';
 import { snapshot } from './snapshot.js';
+import { temp } from './Dir.js';
 
 describe('snapshot', () => {
   it('Captures Error details', () => {
@@ -31,5 +32,23 @@ describe('snapshot', () => {
     const test = { func: () => null };
     const shot = snapshot(test) as Record<string, any>;
     assert(shot.func === undefined);
+  });
+
+  it('Handles recursive references', () => {
+    type Thing = { id: number; thing?: Thing; things: Thing[] };
+    function createThing(id: number, thing?: Thing) {
+      const newThing: Thing = { id, thing, things: [] };
+      if (thing) {
+        thing.things.push(newThing);
+      }
+      return newThing;
+    }
+    const t1 = createThing(1);
+    const t2 = createThing(2, t1);
+    const result = snapshot(t1, 20) as Thing;
+    const f1 = temp.file('recursive').json(result);
+    const parsed = f1.read();
+    const f2 = temp.file('recursive2').json(parsed);
+    assert.deepEqual(f1.read(), f2.read());
   });
 });

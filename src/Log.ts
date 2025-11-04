@@ -38,7 +38,7 @@ export class Log {
    */
   static #toConsole(entry: Entry, color: ChalkInstance) {
     if (entry.message) console.log(color(`[${entry.severity}] ${entry.message}`));
-    entry.details?.forEach(detail => {
+    entry.details?.forEach((detail) => {
       console.log(inspect(detail, { depth: 10, breakLength: 100, compact: true, colors: true }));
     });
   }
@@ -63,7 +63,7 @@ export class Log {
    * Also snapshots special objects (eg Error, Response) to keep props in later JSON.stringify output
    */
   static prepare(...input: unknown[]): { message?: string; details: unknown[] } {
-    let [first, ...rest] = input.map(snapshot);
+    let [first, ...rest] = input.map((i) => snapshot(i));
     if (typeof first === 'string') return { message: first, details: rest };
     // @ts-ignore
     if (isObjectLike(first) && typeof first['message'] === 'string') {
@@ -94,7 +94,7 @@ export class Log {
   }
 
   static debug(...input: unknown[]) {
-    const debugging = process.argv.some(arg => arg.includes('--debug')) || process.env.DEBUG !== undefined;
+    const debugging = process.argv.some((arg) => arg.includes('--debug')) || process.env.DEBUG !== undefined;
     if (debugging || process.env.NODE_ENV !== 'production') {
       return this.#log({ severity: 'DEBUG', color: chalk.gray }, ...input);
     }
