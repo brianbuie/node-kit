@@ -27,7 +27,7 @@ export class Fetcher {
   constructor(opts: FetchOptions = {}) {
     const defaultOptions = {
       timeout: 60000,
-      retries: 3,
+      retries: 0,
       retryDelay: 3000,
     };
     this.defaultOptions = merge(defaultOptions, opts);
