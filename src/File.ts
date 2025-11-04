@@ -44,16 +44,16 @@ export class File {
     return FileAdaptor;
   }
 
-  json<T>() {
-    return new JsonFile<T>(this);
+  json<T>(contents?: T) {
+    return new JsonFile<T>(this.path, contents);
   }
 
   static get json() {
     return JsonFile;
   }
 
-  ndjson<T>() {
-    return new NdjsonFile<T>(this);
+  ndjson<T>(contents?: T) {
+    return new NdjsonFile<T>(this.path, contents);
   }
 
   static get ndjson() {
@@ -61,24 +61,17 @@ export class File {
   }
 }
 
-class FileAdaptor {
+class FileAdaptor<T = string> {
   file;
 
-  constructor(file: string | File) {
-    if (file instanceof File) {
-      const withExt = this.addExt(file.path);
-      if (withExt === file.path) {
-        this.file = file;
-      } else {
-        this.file = new File(withExt);
+  constructor(filepath: string, contents?: T) {
+    this.file = new File(filepath);
+    if (contents) {
+      if (typeof contents !== 'string') {
+        throw new Error('File contents must be a string');
       }
-    } else {
-      this.file = new File(this.addExt(file));
+      this.file.write(contents);
     }
-  }
-
-  addExt(filepath: string) {
-    return filepath;
   }
 
   get exists() {
@@ -91,8 +84,9 @@ class FileAdaptor {
 }
 
 class JsonFile<T> extends FileAdaptor {
-  addExt(filepath: string) {
-    return filepath.endsWith('.json') ? filepath : filepath + '.json';
+  constructor(filepath: string, contents?: T) {
+    super(filepath.endsWith('.json') ? filepath : filepath + '.json');
+    if (contents) this.write(contents);
   }
 
   read() {
@@ -106,18 +100,18 @@ class JsonFile<T> extends FileAdaptor {
 }
 
 class NdjsonFile<T> extends FileAdaptor {
-  addExt(filepath: string) {
-    return filepath.endsWith('.ndjson') ? filepath : filepath + '.ndjson';
+  constructor(filepath: string, contents?: T) {
+    super(filepath.endsWith('.ndjson') ? filepath : filepath + '.ndjson');
+    if (contents) this.append(contents);
+  }
+
+  append(lines: T | T[]) {
+    this.file.append(
+      Array.isArray(lines) ? lines.map((l) => JSON.stringify(snapshot(l))) : JSON.stringify(snapshot(lines))
+    );
   }
 
   lines() {
     return this.file.lines().map((l) => JSON.parse(l) as T);
-  }
-
-  append(lines: T | T[]) {
-    const contents = Array.isArray(lines)
-      ? lines.map((l) => JSON.stringify(snapshot(l)))
-      : JSON.stringify(snapshot(lines));
-    this.file.append(contents);
   }
 }

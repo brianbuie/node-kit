@@ -51,8 +51,7 @@ describe('File.ndjson', () => {
 
 describe('File.json', () => {
   it('Saves data as json', () => {
-    const file = testDir.file('jsonfile-data').json<typeof thing>();
-    file.write(thing);
+    const file = testDir.file('jsonfile-data').json(thing);
     assert(isEqual(file.read(), thing));
     file.write(thing);
     assert(isEqual(file.read(), thing));
