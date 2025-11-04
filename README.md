@@ -1,4 +1,6 @@
-# Node Kit • ![NPM Version](https://img.shields.io/npm/v/%40brianbuie%2Fnode-kit)
+[![NPM Version](https://img.shields.io/npm/v/%40brianbuie%2Fnode-kit)](https://www.npmjs.com/package/@brianbuie/node-kit)
+
+# Node Kit
 
 Basic tools for quick node.js projects
 

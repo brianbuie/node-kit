@@ -7,18 +7,18 @@
     "url": "git+https://github.com/brianbuie/node-kit.git"
   },
   "scripts": {
-    "test": "tsc && node --test \".dist/**/*.test.js\" --quiet",
+    "test": "tsc && node --test \"dist/**/*.test.js\" --quiet",
     "preversion": "npm test",
     "postversion": "git push --follow-tags"
   },
   "type": "module",
   "exports": {
-    ".": "./.dist/_index.js"
+    ".": "./dist/_index.js"
   },
   "files": [
     "src",
-    ".dist",
-    "!.dist/**/*.test.*",
+    "dist",
+    "!dist/**/*.test.*",
     "README.md"
   ],
   "engines": {
