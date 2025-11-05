@@ -15,7 +15,7 @@ const thing = {
 };
 
 describe('FileAdaptor', () => {
-  it('Instances can be created', () => {
+  it('Creates instances', () => {
     const test1 = new File.Adaptor(testDir.filepath('test1.txt'));
     assert(test1.file.path.includes('test1.txt'));
 
@@ -25,6 +25,14 @@ describe('FileAdaptor', () => {
     const eg3File = new File(testDir.filepath(base));
     const eg3 = eg3File.json();
     assert(eg1.path === eg2.path && eg2.path === eg3.path);
+  });
+
+  it('Deletes files', () => {
+    const test = testDir.file('delete-test.txt');
+    test.write('test');
+    assert.equal(test.read(), 'test');
+    test.delete();
+    assert.equal(test.exists, false);
   });
 });
 

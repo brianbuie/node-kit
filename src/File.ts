@@ -40,6 +40,10 @@ export class File {
     return contents.slice(0, contents.length - 1);
   }
 
+  delete() {
+    fs.rmSync(this.path, { force: true });
+  }
+
   static get Adaptor() {
     return FileAdaptor;
   }
@@ -52,8 +56,8 @@ export class File {
     return JsonFile;
   }
 
-  ndjson<T>(contents?: T) {
-    return new NdjsonFile<T>(this.path, contents);
+  ndjson<T>(lines?: T | T[]) {
+    return new NdjsonFile<T>(this.path, lines);
   }
 
   static get ndjson() {
@@ -81,6 +85,10 @@ class FileAdaptor<T = string> {
   get path() {
     return this.file.path;
   }
+
+  delete() {
+    this.file.delete();
+  }
 }
 
 class JsonFile<T> extends FileAdaptor {
@@ -100,9 +108,9 @@ class JsonFile<T> extends FileAdaptor {
 }
 
 class NdjsonFile<T> extends FileAdaptor {
-  constructor(filepath: string, contents?: T) {
+  constructor(filepath: string, lines?: T | T[]) {
     super(filepath.endsWith('.ndjson') ? filepath : filepath + '.ndjson');
-    if (contents) this.append(contents);
+    if (lines) this.append(lines);
   }
 
   append(lines: T | T[]) {
