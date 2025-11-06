@@ -13,6 +13,10 @@ export class File {
     return fs.existsSync(this.path);
   }
 
+  delete() {
+    fs.rmSync(this.path, { force: true });
+  }
+
   read() {
     return this.exists ? fs.readFileSync(this.path, 'utf8') : undefined;
   }
@@ -40,12 +44,8 @@ export class File {
     return contents.slice(0, contents.length - 1);
   }
 
-  delete() {
-    fs.rmSync(this.path, { force: true });
-  }
-
   static get Adaptor() {
-    return FileAdaptor;
+    return Adaptor;
   }
 
   json<T>(contents?: T) {
@@ -65,7 +65,7 @@ export class File {
   }
 }
 
-class FileAdaptor<T = string> {
+class Adaptor<T = string> {
   file;
 
   constructor(filepath: string, contents?: T) {
@@ -82,16 +82,16 @@ class FileAdaptor<T = string> {
     return this.file.exists;
   }
 
-  get path() {
-    return this.file.path;
-  }
-
   delete() {
     this.file.delete();
   }
+
+  get path() {
+    return this.file.path;
+  }
 }
 
-class JsonFile<T> extends FileAdaptor {
+class JsonFile<T> extends Adaptor {
   constructor(filepath: string, contents?: T) {
     super(filepath.endsWith('.json') ? filepath : filepath + '.json');
     if (contents) this.write(contents);
@@ -107,7 +107,7 @@ class JsonFile<T> extends FileAdaptor {
   }
 }
 
-class NdjsonFile<T> extends FileAdaptor {
+class NdjsonFile<T> extends Adaptor {
   constructor(filepath: string, lines?: T | T[]) {
     super(filepath.endsWith('.ndjson') ? filepath : filepath + '.ndjson');
     if (lines) this.append(lines);
