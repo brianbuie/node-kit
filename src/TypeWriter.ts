@@ -1,4 +1,4 @@
-import fs from 'fs';
+import * as fs from 'node:fs';
 import { merge } from 'lodash-es';
 import * as qt from 'quicktype-core';
 

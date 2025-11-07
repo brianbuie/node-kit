@@ -13,7 +13,10 @@
   },
   "type": "module",
   "exports": {
-    ".": "./dist/_index.js"
+    ".": {
+      "types": "./dist/_index.d.ts",
+      "default": "./dist/_index.js"
+    }
   },
   "files": [
     "src",

@@ -1,7 +1,10 @@
-import fs from 'fs';
-import path from 'path';
+import * as fs from 'node:fs';
+import * as path from 'node:path';
 import { snapshot } from './snapshot.js';
 
+/**
+ * WARNING: API will change!
+ */
 export class File {
   path;
 
@@ -56,7 +59,7 @@ export class File {
     return JsonFile;
   }
 
-  ndjson<T>(lines?: T | T[]) {
+  ndjson<T extends object>(lines?: T | T[]) {
     return new NdjsonFile<T>(this.path, lines);
   }
 
@@ -107,7 +110,7 @@ class JsonFile<T> extends Adaptor {
   }
 }
 
-class NdjsonFile<T> extends Adaptor {
+class NdjsonFile<T extends object> extends Adaptor {
   constructor(filepath: string, lines?: T | T[]) {
     super(filepath.endsWith('.ndjson') ? filepath : filepath + '.ndjson');
     if (lines) this.append(lines);
