@@ -20,7 +20,7 @@ import { thing } from '@brianbuie/node-kit';
 
 Links: [API](#api), [Classes](#classes), [Functions](#functions), [Types](#types), [Variables](#variables)
 
-### Classes
+# Classes
 
 | |
 | --- |
@@ -37,7 +37,7 @@ Links: [API](#api), [Classes](#classes), [Functions](#functions), [Types](#types
 
 ---
 
-#### Class: Cache
+## Class: Cache
 
 ```ts
 export class Cache<T> {
@@ -53,7 +53,7 @@ export class Cache<T> {
 Links: [API](#api), [Classes](#classes), [Functions](#functions), [Types](#types), [Variables](#variables)
 
 ---
-#### Class: Dir
+## Class: Dir
 
 Reference to a specific directory with helpful methods for resolving filepaths,
 sanitizing filenames, and saving files
@@ -74,7 +74,7 @@ export class Dir {
 
 <summary>Class Dir Details</summary>
 
-##### Constructor
+### Constructor
 
 ```ts
 constructor(_path: string) 
@@ -85,7 +85,7 @@ Argument Details
 + **path**
   + can be relative to workspace or absolute
 
-##### Method dir
+### Method dir
 
 Create a new Dir inside the current Dir
 
@@ -107,7 +107,7 @@ const child = folder.subDir('path/to/dir');
 // child.path = './example/path/to/dir'
 ```
 
-##### Method filepath
+### Method filepath
 
 ```ts
 filepath(base: string) 
@@ -131,7 +131,7 @@ const filepath = folder.resolve('file.json');
 Links: [API](#api), [Classes](#classes), [Functions](#functions), [Types](#types), [Variables](#variables)
 
 ---
-#### Class: Fetcher
+## Class: Fetcher
 
 Fetcher provides a quick way to set up a basic API connection
 with options applied to every request
@@ -174,7 +174,7 @@ See also: [FetchOptions](#type-fetchoptions), [Route](#type-route)
 
 <summary>Class Fetcher Details</summary>
 
-##### Method buildHeaders
+### Method buildHeaders
 
 Merges options to get headers. Useful when extending the Fetcher class to add custom auth.
 
@@ -183,7 +183,7 @@ buildHeaders(route: Route, opts: FetchOptions = {})
 ```
 See also: [FetchOptions](#type-fetchoptions), [Route](#type-route)
 
-##### Method buildRequest
+### Method buildRequest
 
 Builds request, merging defaultOptions and provided options
 Includes Abort signal for timeout
@@ -197,7 +197,7 @@ buildRequest(route: Route, opts: FetchOptions = {}): [
 ```
 See also: [FetchOptions](#type-fetchoptions), [Route](#type-route)
 
-##### Method buildUrl
+### Method buildUrl
 
 Build URL with URLSearchParams if query is provided
 Also returns domain, to help with cookies
@@ -210,7 +210,7 @@ buildUrl(route: Route, opts: FetchOptions = {}): [
 ```
 See also: [FetchOptions](#type-fetchoptions), [Route](#type-route)
 
-##### Method fetch
+### Method fetch
 
 Builds and performs the request, merging provided options with defaultOptions
 If `opts.data` is provided, method is updated to POST, content-type json, data is stringified in the body
@@ -229,7 +229,7 @@ See also: [FetchOptions](#type-fetchoptions), [Route](#type-route)
 Links: [API](#api), [Classes](#classes), [Functions](#functions), [Types](#types), [Variables](#variables)
 
 ---
-#### Class: File
+## Class: File
 
 WARNING: API will change!
 
@@ -258,7 +258,7 @@ export class File {
 
 <summary>Class File Details</summary>
 
-##### Method append
+### Method append
 
 creates file if it doesn't exist, appends string or array of strings as new lines.
 File always ends with '\n', so contents don't need to be read before appending
@@ -267,7 +267,7 @@ File always ends with '\n', so contents don't need to be read before appending
 append(lines: string | string[]) 
 ```
 
-##### Method lines
+### Method lines
 
 ```ts
 lines() 
@@ -282,7 +282,7 @@ lines as strings, removes trailing '\n'
 Links: [API](#api), [Classes](#classes), [Functions](#functions), [Types](#types), [Variables](#variables)
 
 ---
-#### Class: Jwt
+## Class: Jwt
 
 ```ts
 export class Jwt {
@@ -301,7 +301,7 @@ export class Jwt {
 Links: [API](#api), [Classes](#classes), [Functions](#functions), [Types](#types), [Variables](#variables)
 
 ---
-#### Class: Log
+## Class: Log
 
 ```ts
 export class Log {
@@ -325,7 +325,7 @@ export class Log {
 
 <summary>Class Log Details</summary>
 
-##### Method 
+### Method 
 
 Gcloud parses JSON in stdout
 
@@ -333,7 +333,7 @@ Gcloud parses JSON in stdout
 static #toGcloud(entry: Entry) 
 ```
 
-##### Method 
+### Method 
 
 Includes colors and better inspection for logging during dev
 
@@ -341,7 +341,7 @@ Includes colors and better inspection for logging during dev
 static #toConsole(entry: Entry, color: ChalkInstance) 
 ```
 
-##### Method error
+### Method error
 
 Logs error details before throwing
 
@@ -349,7 +349,7 @@ Logs error details before throwing
 static error(...input: unknown[]) 
 ```
 
-##### Method prepare
+### Method prepare
 
 Handle first argument being a string or an object with a 'message' prop
 Also snapshots special objects (eg Error, Response) to keep props in later JSON.stringify output
@@ -366,7 +366,7 @@ static prepare(...input: unknown[]): {
 Links: [API](#api), [Classes](#classes), [Functions](#functions), [Types](#types), [Variables](#variables)
 
 ---
-#### Class: TempDir
+## Class: TempDir
 
 Extends Dir class with method to `clear()` contents
 
@@ -382,7 +382,7 @@ See also: [Dir](#class-dir)
 Links: [API](#api), [Classes](#classes), [Functions](#functions), [Types](#types), [Variables](#variables)
 
 ---
-#### Class: TypeWriter
+## Class: TypeWriter
 
 ```ts
 export class TypeWriter {
@@ -403,7 +403,7 @@ export class TypeWriter {
 
 <summary>Class TypeWriter Details</summary>
 
-##### Method toString
+### Method toString
 
 function toString() { [native code] }
 
@@ -416,7 +416,7 @@ async toString()
 Links: [API](#api), [Classes](#classes), [Functions](#functions), [Types](#types), [Variables](#variables)
 
 ---
-### Functions
+# Functions
 
 | |
 | --- |
@@ -427,7 +427,7 @@ Links: [API](#api), [Classes](#classes), [Functions](#functions), [Types](#types
 
 ---
 
-#### Function: snapshot
+## Function: snapshot
 
 Allows special objects (Error, Headers, Set) to be included in JSON.stringify output
 functions are removed
@@ -439,7 +439,7 @@ export function snapshot(i: unknown, max = 50, depth = 0): any
 Links: [API](#api), [Classes](#classes), [Functions](#functions), [Types](#types), [Variables](#variables)
 
 ---
-#### Function: timeout
+## Function: timeout
 
 ```ts
 export async function timeout(ms: number) 
@@ -448,7 +448,7 @@ export async function timeout(ms: number)
 Links: [API](#api), [Classes](#classes), [Functions](#functions), [Types](#types), [Variables](#variables)
 
 ---
-### Types
+# Types
 
 | |
 | --- |
@@ -460,7 +460,7 @@ Links: [API](#api), [Classes](#classes), [Functions](#functions), [Types](#types
 
 ---
 
-#### Type: FetchOptions
+## Type: FetchOptions
 
 ```ts
 export type FetchOptions = RequestInit & {
@@ -479,7 +479,7 @@ See also: [Query](#type-query), [timeout](#function-timeout)
 Links: [API](#api), [Classes](#classes), [Functions](#functions), [Types](#types), [Variables](#variables)
 
 ---
-#### Type: Query
+## Type: Query
 
 ```ts
 export type Query = Record<string, QueryVal | QueryVal[]>
@@ -488,7 +488,7 @@ export type Query = Record<string, QueryVal | QueryVal[]>
 Links: [API](#api), [Classes](#classes), [Functions](#functions), [Types](#types), [Variables](#variables)
 
 ---
-#### Type: Route
+## Type: Route
 
 ```ts
 export type Route = string | URL
@@ -497,9 +497,9 @@ export type Route = string | URL
 Links: [API](#api), [Classes](#classes), [Functions](#functions), [Types](#types), [Variables](#variables)
 
 ---
-### Variables
+# Variables
 
-#### Variable: temp
+## Variable: temp
 
 ```ts
 temp = new TempDir(".temp")

@@ -7,7 +7,7 @@
     "url": "git+https://github.com/brianbuie/node-kit.git"
   },
   "scripts": {
-    "docs": "node ./node_modules/ts2md/out/src/ts2md.js",
+    "docs": "node ./node_modules/ts2md/out/src/ts2md.js --firstHeadingLevel=1",
     "test": "tsc && node --test \"dist/**/*.test.js\" --quiet",
     "preversion": "npm test && npm run docs",
     "postversion": "git push --follow-tags"
