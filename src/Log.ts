@@ -2,7 +2,6 @@ import { inspect } from 'node:util';
 import { isObjectLike } from 'lodash-es';
 import chalk, { type ChalkInstance } from 'chalk';
 import { snapshot } from './snapshot.js';
-import pkg from '../package.json' with { type: 'json' };
 
 type Severity = 'DEFAULT' | 'DEBUG' | 'INFO' | 'NOTICE' | 'WARNING' | 'ERROR' | 'CRITICAL' | 'ALERT' | 'EMERGENCY';
 
@@ -19,7 +18,7 @@ type Entry = {
 
 export class Log {
   // Only silence logs when THIS package is running its own tests
-  static isTest = process.env.npm_package_name === pkg.name && process.env.npm_lifecycle_event === 'test';
+  static isTest = process.env.npm_package_name === '@brianbuie/node-kit' && process.env.npm_lifecycle_event === 'test';
 
   /**
    * Gcloud parses JSON in stdout

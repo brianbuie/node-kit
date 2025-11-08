@@ -38,7 +38,8 @@ describe('FileAdaptor', () => {
 
 describe('File.ndjson', () => {
   it('Appends new lines correctly', () => {
-    const file = testDir.file('empty-lines').ndjson();
+    const file = testDir.file('appends-lines').ndjson();
+    file.delete();
     file.append([thing, thing]);
     assert(file.lines().length === 2);
     file.append(thing);
