@@ -18,7 +18,7 @@ export type FetchOptions = RequestInit & {
 
 /**
  * Fetcher provides a quick way to set up a basic API connection
- * with options applied to every request
+ * with options applied to every request.
  * Includes basic methods for requesting and parsing responses
  */
 export class Fetcher {
@@ -34,7 +34,7 @@ export class Fetcher {
   }
 
   /**
-   * Build URL with URLSearchParams if query is provided
+   * Build URL with URLSearchParams if query is provided.
    * Also returns domain, to help with cookies
    */
   buildUrl(route: Route, opts: FetchOptions = {}): [URL, string] {
@@ -65,7 +65,7 @@ export class Fetcher {
   }
 
   /**
-   * Builds request, merging defaultOptions and provided options
+   * Builds request, merging defaultOptions and provided options.
    * Includes Abort signal for timeout
    */
   buildRequest(route: Route, opts: FetchOptions = {}): [Request, FetchOptions, string] {
@@ -86,9 +86,9 @@ export class Fetcher {
   }
 
   /**
-   * Builds and performs the request, merging provided options with defaultOptions
-   * If `opts.data` is provided, method is updated to POST, content-type json, data is stringified in the body
-   * Retries on local or network error, with increasing backoff
+   * Builds and performs the request, merging provided options with defaultOptions.
+   * If `opts.data` is provided, method is updated to POST, content-type json, data is stringified in the body.
+   * Retries on local or network error, with increasing backoff.
    */
   async fetch(route: Route, opts: FetchOptions = {}): Promise<[Response, Request]> {
     const [_req, options] = this.buildRequest(route, opts);

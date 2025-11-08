@@ -52,38 +52,38 @@ export class File {
     return contents.slice(0, contents.length - 1);
   }
 
-  static get Adaptor() {
-    return Adaptor;
+  static get FileType() {
+    return FileType;
   }
 
   json<T>(contents?: T) {
-    return new JsonFile<T>(this.path, contents);
+    return new FileTypeJson<T>(this.path, contents);
   }
 
   static get json() {
-    return JsonFile;
+    return FileTypeJson;
   }
 
   ndjson<T extends object>(lines?: T | T[]) {
-    return new NdjsonFile<T>(this.path, lines);
+    return new FileTypeNdjson<T>(this.path, lines);
   }
 
   static get ndjson() {
-    return NdjsonFile;
+    return FileTypeNdjson;
   }
 
   async csv<T extends object>(rows?: T[], keys?: (keyof T)[]) {
-    const csvFile = new CsvFile<T>(this.path);
+    const csvFile = new FileTypeCsv<T>(this.path);
     if (rows) await csvFile.write(rows, keys);
     return csvFile;
   }
 
   static get csv() {
-    return CsvFile;
+    return FileTypeCsv;
   }
 }
 
-class Adaptor<T = string> {
+export class FileType<T = string> {
   file;
 
   constructor(filepath: string, contents?: T) {
@@ -109,7 +109,7 @@ class Adaptor<T = string> {
   }
 }
 
-class JsonFile<T> extends Adaptor {
+export class FileTypeJson<T> extends FileType {
   constructor(filepath: string, contents?: T) {
     super(filepath.endsWith('.json') ? filepath : filepath + '.json');
     if (contents) this.write(contents);
@@ -125,7 +125,7 @@ class JsonFile<T> extends Adaptor {
   }
 }
 
-class NdjsonFile<T extends object> extends Adaptor {
+export class FileTypeNdjson<T extends object> extends FileType {
   constructor(filepath: string, lines?: T | T[]) {
     super(filepath.endsWith('.ndjson') ? filepath : filepath + '.ndjson');
     if (lines) this.append(lines);
@@ -144,7 +144,7 @@ class NdjsonFile<T extends object> extends Adaptor {
 
 type Key<T extends object> = keyof T;
 
-class CsvFile<Row extends object> extends Adaptor {
+export class FileTypeCsv<Row extends object> extends FileType {
   constructor(filepath: string) {
     super(filepath.endsWith('.csv') ? filepath : filepath + '.csv');
   }

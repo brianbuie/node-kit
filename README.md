@@ -4,14 +4,14 @@
 
 Basic tools for quick node.js projects
 
-## Installing
+# Installing
 
 ```
 npm add @brianbuie/node-kit
 ```
 
 ```js
-import { thing } from '@brianbuie/node-kit';
+import { Fetcher, Log } from '@brianbuie/node-kit';
 ```
 
 # API
@@ -28,6 +28,10 @@ Links: [API](#api), [Classes](#classes), [Functions](#functions), [Types](#types
 | [Dir](#class-dir) |
 | [Fetcher](#class-fetcher) |
 | [File](#class-file) |
+| [FileType](#class-filetype) |
+| [FileTypeCsv](#class-filetypecsv) |
+| [FileTypeJson](#class-filetypejson) |
+| [FileTypeNdjson](#class-filetypendjson) |
 | [Jwt](#class-jwt) |
 | [Log](#class-log) |
 | [TempDir](#class-tempdir) |
@@ -39,12 +43,14 @@ Links: [API](#api), [Classes](#classes), [Functions](#functions), [Types](#types
 
 ## Class: Cache
 
+Save results of a function in a temporary file.
+
 ```ts
 export class Cache<T> {
     file;
     ttl;
-    refresh;
-    constructor(key: string, ttl: number, refresh: () => T | Promise<T>) 
+    getValue;
+    constructor(key: string, ttl: number, getValue: () => T | Promise<T>) 
     async read() 
     async write() 
 }
@@ -56,7 +62,7 @@ Links: [API](#api), [Classes](#classes), [Functions](#functions), [Types](#types
 ## Class: Dir
 
 Reference to a specific directory with helpful methods for resolving filepaths,
-sanitizing filenames, and saving files
+sanitizing filenames, and saving files.
 
 ```ts
 export class Dir {
@@ -134,7 +140,7 @@ Links: [API](#api), [Classes](#classes), [Functions](#functions), [Types](#types
 ## Class: Fetcher
 
 Fetcher provides a quick way to set up a basic API connection
-with options applied to every request
+with options applied to every request.
 Includes basic methods for requesting and parsing responses
 
 ```ts
@@ -185,7 +191,7 @@ See also: [FetchOptions](#type-fetchoptions), [Route](#type-route)
 
 ### Method buildRequest
 
-Builds request, merging defaultOptions and provided options
+Builds request, merging defaultOptions and provided options.
 Includes Abort signal for timeout
 
 ```ts
@@ -199,7 +205,7 @@ See also: [FetchOptions](#type-fetchoptions), [Route](#type-route)
 
 ### Method buildUrl
 
-Build URL with URLSearchParams if query is provided
+Build URL with URLSearchParams if query is provided.
 Also returns domain, to help with cookies
 
 ```ts
@@ -212,9 +218,9 @@ See also: [FetchOptions](#type-fetchoptions), [Route](#type-route)
 
 ### Method fetch
 
-Builds and performs the request, merging provided options with defaultOptions
-If `opts.data` is provided, method is updated to POST, content-type json, data is stringified in the body
-Retries on local or network error, with increasing backoff
+Builds and performs the request, merging provided options with defaultOptions.
+If `opts.data` is provided, method is updated to POST, content-type json, data is stringified in the body.
+Retries on local or network error, with increasing backoff.
 
 ```ts
 async fetch(route: Route, opts: FetchOptions = {}): Promise<[
@@ -244,7 +250,7 @@ export class File {
     write(contents: string) 
     append(lines: string | string[]) 
     lines() 
-    static get Adaptor() 
+    static get FileType() 
     json<T>(contents?: T) 
     static get json() 
     ndjson<T extends object>(lines?: T | T[]) 
@@ -253,6 +259,8 @@ export class File {
     static get csv() 
 }
 ```
+
+See also: [FileType](#class-filetype)
 
 <details>
 
@@ -278,6 +286,66 @@ Returns
 lines as strings, removes trailing '\n'
 
 </details>
+
+Links: [API](#api), [Classes](#classes), [Functions](#functions), [Types](#types), [Variables](#variables)
+
+---
+## Class: FileType
+
+```ts
+export class FileType<T = string> {
+    file;
+    constructor(filepath: string, contents?: T) 
+    get exists() 
+    delete() 
+    get path() 
+}
+```
+
+Links: [API](#api), [Classes](#classes), [Functions](#functions), [Types](#types), [Variables](#variables)
+
+---
+## Class: FileTypeCsv
+
+```ts
+export class FileTypeCsv<Row extends object> extends FileType {
+    constructor(filepath: string) 
+    async write(rows: Row[], keys?: Key<Row>[]) 
+    async read() 
+}
+```
+
+See also: [FileType](#class-filetype)
+
+Links: [API](#api), [Classes](#classes), [Functions](#functions), [Types](#types), [Variables](#variables)
+
+---
+## Class: FileTypeJson
+
+```ts
+export class FileTypeJson<T> extends FileType {
+    constructor(filepath: string, contents?: T) 
+    read() 
+    write(contents: T) 
+}
+```
+
+See also: [FileType](#class-filetype)
+
+Links: [API](#api), [Classes](#classes), [Functions](#functions), [Types](#types), [Variables](#variables)
+
+---
+## Class: FileTypeNdjson
+
+```ts
+export class FileTypeNdjson<T extends object> extends FileType {
+    constructor(filepath: string, lines?: T | T[]) 
+    append(lines: T | T[]) 
+    lines() 
+}
+```
+
+See also: [FileType](#class-filetype)
 
 Links: [API](#api), [Classes](#classes), [Functions](#functions), [Types](#types), [Variables](#variables)
 
@@ -512,17 +580,3 @@ Links: [API](#api), [Classes](#classes), [Functions](#functions), [Types](#types
 ---
 
 <!--#endregion ts2md-api-merged-here-->
-
-## Publishing changes to this package
-
-Commit all changes, then run:
-
-```
-npm version [patch|minor|major] [-m "custom commit message"]
-```
-
-- Bumps version in `package.json`
-- Runs tests (`"preversion"` script in `package.json`)
-- Creates new commit, tagged with version
-- Pushes commit and tags to github (`"postversion"` script in `package.json`)
-- The new tag will trigger github action to publish to npm (`.github/actions/publish.yml`)
