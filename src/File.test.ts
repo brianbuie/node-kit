@@ -14,9 +14,9 @@ const thing = {
   e: null,
 };
 
-describe('FileAdaptor', () => {
+describe('FileType', () => {
   it('Creates instances', () => {
-    const test1 = new File.Adaptor(testDir.filepath('test1.txt'));
+    const test1 = new File.FileType(testDir.filepath('test1.txt'));
     assert(test1.file.path.includes('test1.txt'));
     const base = 'test2';
     const eg1 = new File.json(testDir.filepath(base));

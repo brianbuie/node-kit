@@ -7,15 +7,16 @@
     "url": "git+https://github.com/brianbuie/node-kit.git"
   },
   "scripts": {
+    "docs": "node ./node_modules/ts2md/out/src/ts2md.js --firstHeadingLevel=1",
     "test": "tsc && node --test \"dist/**/*.test.js\" --quiet",
-    "preversion": "npm test",
+    "preversion": "npm test && npm run docs",
     "postversion": "git push --follow-tags"
   },
   "type": "module",
   "exports": {
     ".": {
-      "types": "./dist/_index.d.ts",
-      "default": "./dist/_index.js"
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
     }
   },
   "files": [
@@ -40,6 +41,7 @@
     "@types/jsonwebtoken": "^9.0.10",
     "@types/lodash-es": "^4.17.12",
     "@types/node": "^24.9.1",
+    "ts2md": "^0.2.8",
     "typescript": "^5.9.3"
   }
 }

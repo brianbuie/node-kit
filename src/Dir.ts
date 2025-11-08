@@ -5,7 +5,7 @@ import { File } from './File.js';
 
 /**
  * Reference to a specific directory with helpful methods for resolving filepaths,
- * sanitizing filenames, and saving files
+ * sanitizing filenames, and saving files.
  */
 export class Dir {
   path;
