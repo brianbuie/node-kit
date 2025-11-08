@@ -1,5 +1,6 @@
 import * as fs from 'node:fs';
 import * as path from 'node:path';
+import { writeToString, parseString } from 'fast-csv';
 import { snapshot } from './snapshot.js';
 
 /**
@@ -14,6 +15,10 @@ export class File {
 
   get exists() {
     return fs.existsSync(this.path);
+  }
+
+  createWriteStream(options: Parameters<typeof fs.createWriteStream>[1] = {}) {
+    return fs.createWriteStream(this.path, options);
   }
 
   delete() {
@@ -65,6 +70,16 @@ export class File {
 
   static get ndjson() {
     return NdjsonFile;
+  }
+
+  async csv<T extends object>(rows?: T[], keys?: (keyof T)[]) {
+    const csvFile = new CsvFile<T>(this.path);
+    if (rows) await csvFile.write(rows, keys);
+    return csvFile;
+  }
+
+  static get csv() {
+    return CsvFile;
   }
 }
 
@@ -124,5 +139,57 @@ class NdjsonFile<T extends object> extends Adaptor {
 
   lines() {
     return this.file.lines().map((l) => JSON.parse(l) as T);
+  }
+}
+
+type Key<T extends object> = keyof T;
+
+class CsvFile<Row extends object> extends Adaptor {
+  constructor(filepath: string) {
+    super(filepath.endsWith('.csv') ? filepath : filepath + '.csv');
+  }
+
+  async write(rows: Row[], keys?: Key<Row>[]) {
+    const headerSet = new Set<Key<Row>>();
+    if (keys) {
+      for (const key of keys) headerSet.add(key);
+    } else {
+      for (const row of rows) {
+        for (const key in row) headerSet.add(key);
+      }
+    }
+    const headers = Array.from(headerSet);
+    const outRows = rows.map((row) => headers.map((key) => row[key]));
+    const contents = await writeToString([headers, ...outRows]);
+    this.file.write(contents);
+  }
+
+  async read() {
+    return new Promise<Row[]>((resolve, reject) => {
+      const parsed: Row[] = [];
+      const content = this.file.read();
+      if (!content) return resolve(parsed);
+      function parseVal(val: string) {
+        if (val.toLowerCase() === 'false') return false;
+        if (val.toLowerCase() === 'true') return true;
+        if (val.length === 0) return null;
+        if (/^[\.0-9]+$/.test(val)) return Number(val);
+        return val;
+      }
+      parseString(content, { headers: true })
+        .on('error', (e) => reject(e))
+        .on('end', () => resolve(parsed))
+        .on('data', (raw: Record<Key<Row>, string>) => {
+          parsed.push(
+            Object.entries(raw).reduce(
+              (all, [key, val]) => ({
+                ...all,
+                [key]: parseVal(val as string),
+              }),
+              {} as Row
+            )
+          );
+        });
+    });
   }
 }

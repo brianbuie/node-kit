@@ -1,6 +1,5 @@
 import { describe, it } from 'node:test';
 import assert from 'node:assert';
-import { isEqual } from 'lodash-es';
 import { temp } from './Dir.js';
 import { File } from './File.js';
 
@@ -11,14 +10,14 @@ const thing = {
   a: 'string',
   b: 2,
   c: true,
-  d: null,
+  d: false,
+  e: null,
 };
 
 describe('FileAdaptor', () => {
   it('Creates instances', () => {
     const test1 = new File.Adaptor(testDir.filepath('test1.txt'));
     assert(test1.file.path.includes('test1.txt'));
-
     const base = 'test2';
     const eg1 = new File.json(testDir.filepath(base));
     const eg2 = testDir.file(base).json();
@@ -45,7 +44,7 @@ describe('File.ndjson', () => {
     file.append(thing);
     assert(file.lines().length === 3);
     file.lines().forEach((line) => {
-      assert(isEqual(line, thing));
+      assert.deepStrictEqual(line, thing);
     });
   });
 
@@ -61,9 +60,9 @@ describe('File.ndjson', () => {
 describe('File.json', () => {
   it('Saves data as json', () => {
     const file = testDir.file('jsonfile-data').json(thing);
-    assert(isEqual(file.read(), thing));
+    assert.deepStrictEqual(file.read(), thing);
     file.write(thing);
-    assert(isEqual(file.read(), thing));
+    assert.deepStrictEqual(file.read(), thing);
   });
 
   it('Does not create file when reading', () => {
@@ -71,5 +70,16 @@ describe('File.json', () => {
     const contents = file.read();
     assert(contents === undefined);
     assert(!file.exists);
+  });
+});
+
+describe('File.csv', () => {
+  it('Saves data as csv', async () => {
+    const things = [thing, thing, thing];
+    const file = await testDir.file('csv-data').csv(things);
+    const parsed = await file.read();
+    parsed.forEach((row) => {
+      assert.deepEqual(row, thing);
+    });
   });
 });
