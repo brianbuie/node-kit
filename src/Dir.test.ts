@@ -3,7 +3,7 @@ import assert from 'node:assert';
 import { Dir, TempDir, temp } from './Dir.js';
 
 describe('Dir', () => {
-  const testDir = temp.subDir('dir-test');
+  const testDir = temp.dir('dir-test');
 
   it('Sanitizes filenames', () => {
     const name = testDir.sanitize(':/something/else.json');
@@ -13,13 +13,13 @@ describe('Dir', () => {
 
   it('Creates sub directories', () => {
     const subPath = 'sub/dir';
-    const sub = testDir.subDir(subPath);
+    const sub = testDir.dir(subPath);
     assert(sub.path.includes(testDir.path));
     assert(sub.path.includes(subPath));
   });
 
-  it('TempDir.subDir returns instance of TempDir', () => {
-    const sub = temp.subDir('example');
+  it('TempDir.dir returns instance of TempDir', () => {
+    const sub = temp.dir('example');
     assert(sub instanceof TempDir);
   });
 

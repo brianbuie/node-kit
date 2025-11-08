@@ -2,7 +2,6 @@ import * as fs from 'node:fs';
 import * as path from 'node:path';
 import sanitizeFilename from 'sanitize-filename';
 import { File } from './File.js';
-import { snapshot } from './snapshot.js';
 
 /**
  * Reference to a specific directory with helpful methods for resolving filepaths,
@@ -31,7 +30,7 @@ export class Dir {
    * const child = folder.subDir('path/to/dir');
    * // child.path = './example/path/to/dir'
    */
-  subDir(subPath: string) {
+  dir(subPath: string) {
     return new Dir(path.resolve(this.path, subPath));
   }
 
@@ -59,7 +58,7 @@ export class Dir {
  * Extends Dir class with method to `clear()` contents
  */
 export class TempDir extends Dir {
-  subDir(subPath: string) {
+  dir(subPath: string) {
     return new TempDir(path.resolve(this.path, subPath));
   }
 

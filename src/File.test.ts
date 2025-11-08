@@ -3,7 +3,7 @@ import assert from 'node:assert';
 import { temp } from './Dir.js';
 import { File } from './File.js';
 
-const testDir = temp.subDir('file-test');
+const testDir = temp.dir('file-test');
 testDir.clear();
 
 const thing = {

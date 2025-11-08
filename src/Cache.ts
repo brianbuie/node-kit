@@ -1,6 +1,6 @@
 import { temp } from './Dir.js';
 
-const cacheDir = temp.subDir('cache');
+const cacheDir = temp.dir('cache');
 
 export class Cache<T> {
   file;
