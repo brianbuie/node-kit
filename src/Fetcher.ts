@@ -25,12 +25,12 @@ export class Fetcher {
   defaultOptions;
 
   constructor(opts: FetchOptions = {}) {
-    const defaultOptions = {
+    this.defaultOptions = {
       timeout: 60000,
       retries: 0,
       retryDelay: 3000,
+      ...opts,
     };
-    this.defaultOptions = merge(defaultOptions, opts);
   }
 
   /**
@@ -57,14 +57,22 @@ export class Fetcher {
   }
 
   /**
+   * Merges options to get headers. Useful when extending the Fetcher class to add custom auth.
+   */
+  buildHeaders(route: Route, opts: FetchOptions = {}) {
+    const { headers } = merge({}, this.defaultOptions, opts);
+    return headers || {};
+  }
+
+  /**
    * Builds request, merging defaultOptions and provided options
    * Includes Abort signal for timeout
    */
   buildRequest(route: Route, opts: FetchOptions = {}): [Request, FetchOptions, string] {
     const mergedOptions = merge({}, this.defaultOptions, opts);
     const { query, data, timeout, retries, ...init } = mergedOptions;
+    init.headers = this.buildHeaders(route, mergedOptions);
     if (data) {
-      init.headers = init.headers || {};
       init.headers['content-type'] = init.headers['content-type'] || 'application/json';
       init.method = init.method || 'POST';
       init.body = JSON.stringify(data);
@@ -88,7 +96,6 @@ export class Fetcher {
     let attempt = 0;
     while (attempt < maxAttempts) {
       attempt++;
-      // Rebuild request on every attempt to reset AbortSignal.timeout
       const [req] = this.buildRequest(route, opts);
       const res = await fetch(req)
         .then((r) => {
