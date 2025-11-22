@@ -1,5 +1,7 @@
 import * as fs from 'node:fs';
 import * as path from 'node:path';
+import { Readable } from 'node:stream';
+import { finished } from 'node:stream/promises';
 import { writeToString, parseString } from 'fast-csv';
 import { snapshot } from './snapshot.js';
 
@@ -17,10 +19,6 @@ export class File {
     return fs.existsSync(this.path);
   }
 
-  createWriteStream(options: Parameters<typeof fs.createWriteStream>[1] = {}) {
-    return fs.createWriteStream(this.path, options);
-  }
-
   delete() {
     fs.rmSync(this.path, { force: true });
   }
@@ -32,6 +30,10 @@ export class File {
   write(contents: string) {
     fs.mkdirSync(path.parse(this.path).dir, { recursive: true });
     fs.writeFileSync(this.path, contents);
+  }
+
+  async streamFrom(...options: Parameters<(typeof Readable)['from']>) {
+    return finished(Readable.from(...options).pipe(fs.createWriteStream(this.path)));
   }
 
   /**
@@ -133,7 +135,7 @@ export class FileTypeNdjson<T extends object> extends FileType {
 
   append(lines: T | T[]) {
     this.file.append(
-      Array.isArray(lines) ? lines.map((l) => JSON.stringify(snapshot(l))) : JSON.stringify(snapshot(lines))
+      Array.isArray(lines) ? lines.map((l) => JSON.stringify(snapshot(l))) : JSON.stringify(snapshot(lines)),
     );
   }
 
@@ -186,8 +188,8 @@ export class FileTypeCsv<Row extends object> extends FileType {
                 ...all,
                 [key]: parseVal(val as string),
               }),
-              {} as Row
-            )
+              {} as Row,
+            ),
           );
         });
     });

@@ -247,10 +247,10 @@ export class File {
     path;
     constructor(filepath: string) 
     get exists() 
-    createWriteStream(options: Parameters<typeof fs.createWriteStream>[1] = {}) 
     delete() 
     read() 
     write(contents: string) 
+    async streamFrom(...options: Parameters<(typeof Readable)["from"]>) 
     append(lines: string | string[]) 
     lines() 
     static get FileType() 

@@ -35,6 +35,19 @@ describe('FileType', () => {
   });
 });
 
+describe('File', () => {
+  it('Handles request body as stream input', async () => {
+    const res = await fetch('https://testingbot.com/free-online-tools/random-avatar/300');
+    const img = testDir.file('image.jpg');
+    if (res.body) {
+      await img.streamFrom(res.body);
+      assert(img.exists);
+    } else {
+      assert(false, 'No response body');
+    }
+  });
+});
+
 describe('File.ndjson', () => {
   it('Appends new lines correctly', () => {
     const file = testDir.file('appends-lines').ndjson();
