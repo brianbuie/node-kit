@@ -1,7 +1,7 @@
 import { inspect } from 'node:util';
 import { isObjectLike } from 'lodash-es';
 import chalk, { type ChalkInstance } from 'chalk';
-import { snapshot } from './snapshot.js';
+import { snapshot } from './snapshot.ts';
 
 type Severity = 'DEFAULT' | 'DEBUG' | 'INFO' | 'NOTICE' | 'WARNING' | 'ERROR' | 'CRITICAL' | 'ALERT' | 'EMERGENCY';
 

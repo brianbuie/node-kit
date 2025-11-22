@@ -3,7 +3,7 @@ import * as path from 'node:path';
 import { Readable } from 'node:stream';
 import { finished } from 'node:stream/promises';
 import { writeToStream, parseStream } from 'fast-csv';
-import { snapshot } from './snapshot.js';
+import { snapshot } from './snapshot.ts';
 
 /**
  * WARNING: API will change!

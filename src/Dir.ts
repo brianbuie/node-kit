@@ -1,7 +1,7 @@
 import * as fs from 'node:fs';
 import * as path from 'node:path';
 import sanitizeFilename from 'sanitize-filename';
-import { File } from './File.js';
+import { File } from './File.ts';
 
 /**
  * Reference to a specific directory with helpful methods for resolving filepaths,
