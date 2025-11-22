@@ -249,10 +249,11 @@ export class File {
     get exists() 
     delete() 
     read() 
-    write(contents: string) 
-    async streamFrom(...options: Parameters<(typeof Readable)["from"]>) 
-    append(lines: string | string[]) 
     lines() 
+    get readStream() 
+    get writeStream() 
+    write(contents: string | ReadableStream) 
+    append(lines: string | string[]) 
     static get FileType() 
     json<T>(contents?: T) 
     static get json() 
@@ -295,13 +296,15 @@ Links: [API](#api), [Classes](#classes), [Functions](#functions), [Types](#types
 ---
 ## Class: FileType
 
+A generic file adaptor, extended by specific file type implementations
+
 ```ts
-export class FileType<T = string> {
+export class FileType {
     file;
-    constructor(filepath: string, contents?: T) 
+    constructor(filepath: string, contents?: string) 
     get exists() 
-    delete() 
     get path() 
+    delete() 
 }
 ```
 
@@ -310,10 +313,14 @@ Links: [API](#api), [Classes](#classes), [Functions](#functions), [Types](#types
 ---
 ## Class: FileTypeCsv
 
+Comma separated values (.csv).
+Input rows as objects, keys are used as column headers
+
 ```ts
 export class FileTypeCsv<Row extends object> extends FileType {
     constructor(filepath: string) 
     async write(rows: Row[], keys?: Key<Row>[]) 
+    #parseVal(val: string) 
     async read() 
 }
 ```
@@ -324,6 +331,9 @@ Links: [API](#api), [Classes](#classes), [Functions](#functions), [Types](#types
 
 ---
 ## Class: FileTypeJson
+
+A .json file that maintains data type when reading/writing.
+This is unsafe! Type is not checked at runtime, avoid using on files manipulated outside of your application.
 
 ```ts
 export class FileTypeJson<T> extends FileType {
@@ -339,6 +349,8 @@ Links: [API](#api), [Classes](#classes), [Functions](#functions), [Types](#types
 
 ---
 ## Class: FileTypeNdjson
+
+New-line delimited json file (.ndjson)
 
 ```ts
 export class FileTypeNdjson<T extends object> extends FileType {

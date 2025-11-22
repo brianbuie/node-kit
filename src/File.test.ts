@@ -14,6 +14,17 @@ const thing = {
   e: null,
 };
 
+describe('File', () => {
+  it('Handles request body as stream input', async () => {
+    const img = testDir.file('image.jpg');
+    await fetch('https://testingbot.com/free-online-tools/random-avatar/300').then((res) => {
+      if (!res.body) throw new Error('No response body');
+      return img.write(res.body);
+    });
+    assert(img.exists);
+  });
+});
+
 describe('FileType', () => {
   it('Creates instances', () => {
     const test1 = new File.FileType(testDir.filepath('test1.txt'));
@@ -35,20 +46,23 @@ describe('FileType', () => {
   });
 });
 
-describe('File', () => {
-  it('Handles request body as stream input', async () => {
-    const res = await fetch('https://testingbot.com/free-online-tools/random-avatar/300');
-    const img = testDir.file('image.jpg');
-    if (res.body) {
-      await img.streamFrom(res.body);
-      assert(img.exists);
-    } else {
-      assert(false, 'No response body');
-    }
+describe('FileTypeJson', () => {
+  it('Saves data as json', () => {
+    const file = testDir.file('jsonfile-data').json(thing);
+    assert.deepStrictEqual(file.read(), thing);
+    file.write(thing);
+    assert.deepStrictEqual(file.read(), thing);
+  });
+
+  it('Does not create file when reading', () => {
+    const file = testDir.file('test123').json();
+    const contents = file.read();
+    assert(contents === undefined);
+    assert(!file.exists);
   });
 });
 
-describe('File.ndjson', () => {
+describe('FileTypeNdjson', () => {
   it('Appends new lines correctly', () => {
     const file = testDir.file('appends-lines').ndjson();
     file.delete();
@@ -70,23 +84,7 @@ describe('File.ndjson', () => {
   });
 });
 
-describe('File.json', () => {
-  it('Saves data as json', () => {
-    const file = testDir.file('jsonfile-data').json(thing);
-    assert.deepStrictEqual(file.read(), thing);
-    file.write(thing);
-    assert.deepStrictEqual(file.read(), thing);
-  });
-
-  it('Does not create file when reading', () => {
-    const file = testDir.file('test123').json();
-    const contents = file.read();
-    assert(contents === undefined);
-    assert(!file.exists);
-  });
-});
-
-describe('File.csv', () => {
+describe('FileTypeCsv', () => {
   it('Saves data as csv', async () => {
     const things = [thing, thing, thing];
     const file = await testDir.file('csv-data').csv(things);
@@ -94,5 +92,11 @@ describe('File.csv', () => {
     parsed.forEach((row) => {
       assert.deepEqual(row, thing);
     });
+  });
+  it('Reads file that does not exist', async () => {
+    const file = await testDir.file('bogus').csv();
+    const contents = await file.read();
+    assert(Array.isArray(contents));
+    assert(contents.length === 0);
   });
 });

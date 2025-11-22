@@ -2,7 +2,7 @@ import * as fs from 'node:fs';
 import * as path from 'node:path';
 import { Readable } from 'node:stream';
 import { finished } from 'node:stream/promises';
-import { writeToString, parseString } from 'fast-csv';
+import { writeToStream, parseStream } from 'fast-csv';
 import { snapshot } from './snapshot.js';
 
 /**
@@ -27,13 +27,28 @@ export class File {
     return this.exists ? fs.readFileSync(this.path, 'utf8') : undefined;
   }
 
-  write(contents: string) {
-    fs.mkdirSync(path.parse(this.path).dir, { recursive: true });
-    fs.writeFileSync(this.path, contents);
+  /**
+   * @returns lines as strings, removes trailing '\n'
+   */
+  lines() {
+    const contents = (this.read() || '').split('\n');
+    return contents.slice(0, contents.length - 1);
   }
 
-  async streamFrom(...options: Parameters<(typeof Readable)['from']>) {
-    return finished(Readable.from(...options).pipe(fs.createWriteStream(this.path)));
+  get readStream() {
+    return this.exists ? fs.createReadStream(this.path) : Readable.from([]);
+  }
+
+  get writeStream() {
+    fs.mkdirSync(path.parse(this.path).dir, { recursive: true });
+    return fs.createWriteStream(this.path);
+  }
+
+  write(contents: string | ReadableStream) {
+    fs.mkdirSync(path.parse(this.path).dir, { recursive: true });
+    if (typeof contents === 'string') return fs.writeFileSync(this.path, contents);
+    if (contents instanceof ReadableStream) return finished(Readable.from(contents).pipe(this.writeStream));
+    throw new Error(`Invalid content type: ${typeof contents}`);
   }
 
   /**
@@ -44,14 +59,6 @@ export class File {
     if (!this.exists) this.write('');
     const contents = Array.isArray(lines) ? lines.join('\n') : lines;
     fs.appendFileSync(this.path, contents + '\n');
-  }
-
-  /**
-   * @returns lines as strings, removes trailing '\n'
-   */
-  lines() {
-    const contents = (this.read() || '').split('\n');
-    return contents.slice(0, contents.length - 1);
   }
 
   static get FileType() {
@@ -85,32 +92,34 @@ export class File {
   }
 }
 
-export class FileType<T = string> {
+/**
+ * A generic file adaptor, extended by specific file type implementations
+ */
+export class FileType {
   file;
 
-  constructor(filepath: string, contents?: T) {
+  constructor(filepath: string, contents?: string) {
     this.file = new File(filepath);
-    if (contents) {
-      if (typeof contents !== 'string') {
-        throw new Error('File contents must be a string');
-      }
-      this.file.write(contents);
-    }
+    if (contents) this.file.write(contents);
   }
 
   get exists() {
     return this.file.exists;
   }
 
-  delete() {
-    this.file.delete();
-  }
-
   get path() {
     return this.file.path;
   }
+
+  delete() {
+    this.file.delete();
+  }
 }
 
+/**
+ * A .json file that maintains data type when reading/writing.
+ * This is unsafe! Type is not checked at runtime, avoid using on files manipulated outside of your application.
+ */
 export class FileTypeJson<T> extends FileType {
   constructor(filepath: string, contents?: T) {
     super(filepath.endsWith('.json') ? filepath : filepath + '.json');
@@ -127,6 +136,10 @@ export class FileTypeJson<T> extends FileType {
   }
 }
 
+/**
+ * New-line delimited json file (.ndjson)
+ * @see https://jsonltools.com/ndjson-format-specification
+ */
 export class FileTypeNdjson<T extends object> extends FileType {
   constructor(filepath: string, lines?: T | T[]) {
     super(filepath.endsWith('.ndjson') ? filepath : filepath + '.ndjson');
@@ -146,6 +159,10 @@ export class FileTypeNdjson<T extends object> extends FileType {
 
 type Key<T extends object> = keyof T;
 
+/**
+ * Comma separated values (.csv).
+ * Input rows as objects, keys are used as column headers
+ */
 export class FileTypeCsv<Row extends object> extends FileType {
   constructor(filepath: string) {
     super(filepath.endsWith('.csv') ? filepath : filepath + '.csv');
@@ -162,36 +179,34 @@ export class FileTypeCsv<Row extends object> extends FileType {
     }
     const headers = Array.from(headerSet);
     const outRows = rows.map((row) => headers.map((key) => row[key]));
-    const contents = await writeToString([headers, ...outRows]);
-    this.file.write(contents);
+    return finished(writeToStream(this.file.writeStream, [headers, ...outRows]));
+  }
+
+  #parseVal(val: string) {
+    if (val.toLowerCase() === 'false') return false;
+    if (val.toLowerCase() === 'true') return true;
+    if (val.length === 0) return null;
+    if (/^[\.0-9]+$/.test(val)) return Number(val);
+    return val;
   }
 
   async read() {
     return new Promise<Row[]>((resolve, reject) => {
       const parsed: Row[] = [];
-      const content = this.file.read();
-      if (!content) return resolve(parsed);
-      function parseVal(val: string) {
-        if (val.toLowerCase() === 'false') return false;
-        if (val.toLowerCase() === 'true') return true;
-        if (val.length === 0) return null;
-        if (/^[\.0-9]+$/.test(val)) return Number(val);
-        return val;
-      }
-      parseString(content, { headers: true })
+      parseStream(this.file.readStream, { headers: true })
         .on('error', (e) => reject(e))
-        .on('end', () => resolve(parsed))
         .on('data', (raw: Record<Key<Row>, string>) => {
           parsed.push(
             Object.entries(raw).reduce(
               (all, [key, val]) => ({
                 ...all,
-                [key]: parseVal(val as string),
+                [key]: this.#parseVal(val as string),
               }),
               {} as Row,
             ),
           );
-        });
+        })
+        .on('end', () => resolve(parsed));
     });
   }
 }
