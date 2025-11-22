@@ -1,5 +1,5 @@
 import { type Duration, isAfter, add } from 'date-fns';
-import { temp } from './Dir.js';
+import { temp } from './Dir.ts';
 
 const cacheDir = temp.dir('cache');
 

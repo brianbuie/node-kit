@@ -1,6 +1,6 @@
 import { describe, it } from 'node:test';
 import assert from 'node:assert';
-import { timeout } from './timeout.js';
+import { timeout } from './timeout.ts';
 
 describe('timeout', () => {
   it('Waits correct amount of time', async () => {

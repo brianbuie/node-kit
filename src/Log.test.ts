@@ -1,6 +1,6 @@
 import { describe, it } from 'node:test';
 import assert from 'node:assert';
-import { Log } from './Log.js';
+import { Log } from './Log.ts';
 
 describe('Log', () => {
   it('Throws error', () => {

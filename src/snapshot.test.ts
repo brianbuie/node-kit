@@ -1,7 +1,7 @@
 import { describe, it } from 'node:test';
 import assert from 'node:assert';
-import { snapshot } from './snapshot.js';
-import { temp } from './Dir.js';
+import { snapshot } from './snapshot.ts';
+import { temp } from './Dir.ts';
 
 describe('snapshot', () => {
   it('Captures Error details', () => {
