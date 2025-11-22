@@ -32,7 +32,6 @@ Links: [API](#api), [Classes](#classes), [Functions](#functions), [Types](#types
 | [FileTypeCsv](#class-filetypecsv) |
 | [FileTypeJson](#class-filetypejson) |
 | [FileTypeNdjson](#class-filetypendjson) |
-| [Jwt](#class-jwt) |
 | [Log](#class-log) |
 | [TempDir](#class-tempdir) |
 | [TypeWriter](#class-typewriter) |
@@ -350,25 +349,6 @@ export class FileTypeNdjson<T extends object> extends FileType {
 ```
 
 See also: [FileType](#class-filetype)
-
-Links: [API](#api), [Classes](#classes), [Functions](#functions), [Types](#types), [Variables](#variables)
-
----
-## Class: Jwt
-
-```ts
-export class Jwt {
-    config;
-    #saved?: {
-        exp: number;
-        token: string;
-    };
-    constructor(config: JwtConfig) 
-    get now() 
-    #createToken() 
-    get token() 
-}
-```
 
 Links: [API](#api), [Classes](#classes), [Functions](#functions), [Types](#types), [Variables](#variables)
 
