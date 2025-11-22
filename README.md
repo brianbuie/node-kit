@@ -32,7 +32,6 @@ Links: [API](#api), [Classes](#classes), [Functions](#functions), [Types](#types
 | [FileTypeCsv](#class-filetypecsv) |
 | [FileTypeJson](#class-filetypejson) |
 | [FileTypeNdjson](#class-filetypendjson) |
-| [Jwt](#class-jwt) |
 | [Log](#class-log) |
 | [TempDir](#class-tempdir) |
 | [TypeWriter](#class-typewriter) |
@@ -43,16 +42,20 @@ Links: [API](#api), [Classes](#classes), [Functions](#functions), [Types](#types
 
 ## Class: Cache
 
-Save results of a function in a temporary file.
+Save data to a local file with an expiration.
+Fresh/stale data is returned with a flag for if it's fresh or not,
+so stale data can still be used if needed.
 
 ```ts
 export class Cache<T> {
     file;
     ttl;
-    getValue;
-    constructor(key: string, ttl: number, getValue: () => T | Promise<T>) 
-    async read() 
-    async write() 
+    constructor(key: string, ttl: number | Duration, initialData?: T) 
+    write(data: T) 
+    read(): [
+        T | undefined,
+        boolean
+    ] 
 }
 ```
 
@@ -244,10 +247,10 @@ export class File {
     path;
     constructor(filepath: string) 
     get exists() 
-    createWriteStream(options: Parameters<typeof fs.createWriteStream>[1] = {}) 
     delete() 
     read() 
     write(contents: string) 
+    async streamFrom(...options: Parameters<(typeof Readable)["from"]>) 
     append(lines: string | string[]) 
     lines() 
     static get FileType() 
@@ -346,25 +349,6 @@ export class FileTypeNdjson<T extends object> extends FileType {
 ```
 
 See also: [FileType](#class-filetype)
-
-Links: [API](#api), [Classes](#classes), [Functions](#functions), [Types](#types), [Variables](#variables)
-
----
-## Class: Jwt
-
-```ts
-export class Jwt {
-    config;
-    #saved?: {
-        exp: number;
-        token: string;
-    };
-    constructor(config: JwtConfig) 
-    get now() 
-    #createToken() 
-    get token() 
-}
-```
 
 Links: [API](#api), [Classes](#classes), [Functions](#functions), [Types](#types), [Variables](#variables)
 

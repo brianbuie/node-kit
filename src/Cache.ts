@@ -1,33 +1,30 @@
+import { type Duration, isAfter, add } from 'date-fns';
 import { temp } from './Dir.js';
 
 const cacheDir = temp.dir('cache');
 
 /**
- * Save results of a function in a temporary file.
- * @param key A unique name for the file
- * @param ttl cache duration in ms
- * @param getValue the function to populate the cache (eg. fetch results, generate key, etc)
+ * Save data to a local file with an expiration.
+ * Fresh/stale data is returned with a flag for if it's fresh or not,
+ * so stale data can still be used if needed.
  */
 export class Cache<T> {
   file;
   ttl;
-  getValue;
 
-  constructor(key: string, ttl: number, getValue: () => T | Promise<T>) {
-    this.file = cacheDir.file(key).json<{ createdAt: number; value: T }>();
-    this.ttl = ttl;
-    this.getValue = getValue;
+  constructor(key: string, ttl: number | Duration, initialData?: T) {
+    this.file = cacheDir.file(key).json<{ savedAt: string; data: T }>();
+    this.ttl = typeof ttl === 'number' ? { minutes: ttl } : ttl;
+    if (initialData) this.write(initialData);
   }
 
-  async read() {
-    const { createdAt, value } = this.file.read() || {};
-    if (value && createdAt && createdAt + this.ttl > Date.now()) return value;
-    return this.write();
+  write(data: T) {
+    this.file.write({ savedAt: new Date().toUTCString(), data });
   }
 
-  async write() {
-    const value = await this.getValue();
-    this.file.write({ createdAt: Date.now(), value });
-    return value;
+  read(): [T | undefined, boolean] {
+    const { savedAt, data } = this.file.read() || {};
+    const isFresh = Boolean(savedAt && isAfter(add(savedAt, this.ttl), new Date()));
+    return [data, isFresh];
   }
 }
