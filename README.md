@@ -43,16 +43,20 @@ Links: [API](#api), [Classes](#classes), [Functions](#functions), [Types](#types
 
 ## Class: Cache
 
-Save results of a function in a temporary file.
+Save data to a local file with an expiration.
+Fresh/stale data is returned with a flag for if it's fresh or not,
+so stale data can still be used if needed.
 
 ```ts
 export class Cache<T> {
     file;
     ttl;
-    getValue;
-    constructor(key: string, ttl: number, getValue: () => T | Promise<T>) 
-    async read() 
-    async write() 
+    constructor(key: string, ttl: number | Duration, initialData?: T) 
+    write(data: T) 
+    read(): [
+        T | undefined,
+        boolean
+    ] 
 }
 ```
 
