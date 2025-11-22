@@ -35,7 +35,7 @@ export class Dir {
   }
 
   sanitize(name: string) {
-    return sanitizeFilename(name.replace('https://', '').replace('www.', ''), { replacement: '_' });
+    return sanitizeFilename(name.replace('https://', '').replace('www.', ''), { replacement: '_' }).slice(-200);
   }
 
   /**
