@@ -10,9 +10,20 @@ import { snapshot } from './snapshot.ts';
  */
 export class File {
   path;
+  root;
+  dir;
+  base;
+  ext;
+  name;
 
   constructor(filepath: string) {
     this.path = filepath;
+    const { root, dir, base, ext, name } = path.parse(filepath);
+    this.root = root;
+    this.dir = dir;
+    this.base = base;
+    this.ext = ext;
+    this.name = name;
   }
 
   get exists() {
