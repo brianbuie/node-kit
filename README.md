@@ -70,9 +70,10 @@ sanitizing filenames, and saving files.
 ```ts
 export class Dir {
     path;
-    constructor(_path: string) 
+    constructor(_path = "./") 
     create() 
     dir(subPath: string) 
+    tempDir(subPath: string) 
     sanitize(name: string) 
     filepath(base: string) 
     file(base: string) 
@@ -86,7 +87,7 @@ export class Dir {
 ### Constructor
 
 ```ts
-constructor(_path: string) 
+constructor(_path = "./") 
 ```
 
 Argument Details
@@ -112,7 +113,7 @@ Example
 ```ts
 const folder = new Dir('example');
 // folder.path = './example'
-const child = folder.subDir('path/to/dir');
+const child = folder.dir('path/to/dir');
 // child.path = './example/path/to/dir'
 ```
 
@@ -245,6 +246,11 @@ WARNING: API will change!
 ```ts
 export class File {
     path;
+    root;
+    dir;
+    base;
+    ext;
+    name;
     constructor(filepath: string) 
     get exists() 
     delete() 
@@ -436,7 +442,6 @@ Extends Dir class with method to `clear()` contents
 
 ```ts
 export class TempDir extends Dir {
-    dir(subPath: string) 
     clear() 
 }
 ```
