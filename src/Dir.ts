@@ -13,8 +13,8 @@ export class Dir {
   /**
    * @param path can be relative to workspace or absolute
    */
-  constructor(_path: string) {
-    this.path = _path;
+  constructor(_path = './') {
+    this.path = path.resolve(_path);
   }
 
   create() {
@@ -27,11 +27,15 @@ export class Dir {
    * @example
    * const folder = new Dir('example');
    * // folder.path = './example'
-   * const child = folder.subDir('path/to/dir');
+   * const child = folder.dir('path/to/dir');
    * // child.path = './example/path/to/dir'
    */
   dir(subPath: string) {
     return new Dir(path.resolve(this.path, subPath));
+  }
+
+  tempDir(subPath: string) {
+    return new TempDir(path.resolve(this.path, subPath));
   }
 
   sanitize(name: string) {
@@ -58,10 +62,6 @@ export class Dir {
  * Extends Dir class with method to `clear()` contents
  */
 export class TempDir extends Dir {
-  dir(subPath: string) {
-    return new TempDir(path.resolve(this.path, subPath));
-  }
-
   clear() {
     fs.rmSync(this.path, { recursive: true, force: true });
     this.create();

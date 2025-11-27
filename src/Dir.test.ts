@@ -18,8 +18,8 @@ describe('Dir', () => {
     assert(sub.path.includes(subPath));
   });
 
-  it('TempDir.dir returns instance of TempDir', () => {
-    const sub = temp.dir('example');
+  it('TempDir.tempDir returns instance of TempDir', () => {
+    const sub = temp.tempDir('example');
     assert(sub instanceof TempDir);
   });
 
