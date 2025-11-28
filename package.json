@@ -2,6 +2,8 @@
   "name": "@brianbuie/node-kit",
   "version": "0.10.0",
   "license": "ISC",
+  "description": "Basic tools for Node.js projects",
+  "author": "Brian Buie <brian@buie.dev>",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/brianbuie/node-kit.git"
@@ -22,7 +24,7 @@
   "files": [
     "src",
     "dist",
-    "README.md"
+    "tsconfig.json"
   ],
   "engines": {
     "node": ">=24"
