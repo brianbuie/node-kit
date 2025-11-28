@@ -4,8 +4,8 @@ import sanitizeFilename from 'sanitize-filename';
 import { File } from './File.ts';
 
 /**
- * Reference to a specific directory with helpful methods for resolving filepaths,
- * sanitizing filenames, and saving files.
+ * Reference to a specific directory with methods to create and list files.
+ * Created immediately if it doesn't exist
  */
 export class Dir {
   path;
@@ -13,22 +13,19 @@ export class Dir {
   /**
    * @param path can be relative to workspace or absolute
    */
-  constructor(_path = './') {
-    this.path = path.resolve(_path);
-  }
-
-  create() {
+  constructor(inputPath = './') {
+    this.path = path.resolve(inputPath);
     fs.mkdirSync(this.path, { recursive: true });
   }
 
   /**
    * Create a new Dir inside the current Dir
-   * @param subPath to create in current Dir
+   * @param subPath relative path to create
    * @example
    * const folder = new Dir('example');
-   * // folder.path = './example'
+   * // folder.path = '/absolute/path/to/example'
    * const child = folder.dir('path/to/dir');
-   * // child.path = './example/path/to/dir'
+   * // child.path = '/absolute/path/to/example/path/to/dir'
    */
   dir(subPath: string) {
     return new Dir(path.resolve(this.path, subPath));
@@ -38,8 +35,8 @@ export class Dir {
     return new TempDir(path.resolve(this.path, subPath));
   }
 
-  sanitize(name: string) {
-    return sanitizeFilename(name.replace('https://', '').replace('www.', ''), { replacement: '_' }).slice(-200);
+  sanitize(filename: string) {
+    return sanitizeFilename(filename.replace('https://', '').replace('www.', ''), { replacement: '_' }).slice(-200);
   }
 
   /**
@@ -56,6 +53,10 @@ export class Dir {
   file(base: string) {
     return new File(this.filepath(base));
   }
+
+  get files() {
+    return fs.readdirSync(this.path).map((filename) => this.file(filename));
+  }
 }
 
 /**
@@ -64,11 +65,13 @@ export class Dir {
 export class TempDir extends Dir {
   clear() {
     fs.rmSync(this.path, { recursive: true, force: true });
-    this.create();
+    fs.mkdirSync(this.path, { recursive: true });
   }
 }
 
 /**
- * Common temp dir location
+ * Creates a '.temp' directory in current working directory
  */
-export const temp = new TempDir('.temp');
+export function temp() {
+  return new TempDir('.temp');
+}

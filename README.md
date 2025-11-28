@@ -2,7 +2,7 @@
 
 # Node Kit
 
-Basic tools for quick node.js projects
+Basic tools for Node.js projects
 
 # Installing
 
@@ -18,7 +18,7 @@ import { Fetcher, Log } from '@brianbuie/node-kit';
 
 <!--#region ts2md-api-merged-here-->
 
-Links: [API](#api), [Classes](#classes), [Functions](#functions), [Types](#types), [Variables](#variables)
+Links: [API](#api), [Classes](#classes), [Functions](#functions), [Types](#types)
 
 # Classes
 
@@ -32,11 +32,12 @@ Links: [API](#api), [Classes](#classes), [Functions](#functions), [Types](#types
 | [FileTypeCsv](#class-filetypecsv) |
 | [FileTypeJson](#class-filetypejson) |
 | [FileTypeNdjson](#class-filetypendjson) |
+| [Format](#class-format) |
 | [Log](#class-log) |
 | [TempDir](#class-tempdir) |
 | [TypeWriter](#class-typewriter) |
 
-Links: [API](#api), [Classes](#classes), [Functions](#functions), [Types](#types), [Variables](#variables)
+Links: [API](#api), [Classes](#classes), [Functions](#functions), [Types](#types)
 
 ---
 
@@ -59,24 +60,24 @@ export class Cache<T> {
 }
 ```
 
-Links: [API](#api), [Classes](#classes), [Functions](#functions), [Types](#types), [Variables](#variables)
+Links: [API](#api), [Classes](#classes), [Functions](#functions), [Types](#types)
 
 ---
 ## Class: Dir
 
-Reference to a specific directory with helpful methods for resolving filepaths,
-sanitizing filenames, and saving files.
+Reference to a specific directory with methods to create and list files.
+Created immediately if it doesn't exist
 
 ```ts
 export class Dir {
     path;
-    constructor(_path = "./") 
-    create() 
+    constructor(inputPath = "./") 
     dir(subPath: string) 
     tempDir(subPath: string) 
-    sanitize(name: string) 
+    sanitize(filename: string) 
     filepath(base: string) 
     file(base: string) 
+    get files() 
 }
 ```
 
@@ -87,7 +88,7 @@ export class Dir {
 ### Constructor
 
 ```ts
-constructor(_path = "./") 
+constructor(inputPath = "./") 
 ```
 
 Argument Details
@@ -106,15 +107,15 @@ dir(subPath: string)
 Argument Details
 
 + **subPath**
-  + to create in current Dir
+  + relative path to create
 
 Example
 
 ```ts
 const folder = new Dir('example');
-// folder.path = './example'
+// folder.path = '/absolute/path/to/example'
 const child = folder.dir('path/to/dir');
-// child.path = './example/path/to/dir'
+// child.path = '/absolute/path/to/example/path/to/dir'
 ```
 
 ### Method filepath
@@ -138,7 +139,7 @@ const filepath = folder.resolve('file.json');
 
 </details>
 
-Links: [API](#api), [Classes](#classes), [Functions](#functions), [Types](#types), [Variables](#variables)
+Links: [API](#api), [Classes](#classes), [Functions](#functions), [Types](#types)
 
 ---
 ## Class: Fetcher
@@ -236,12 +237,12 @@ See also: [FetchOptions](#type-fetchoptions), [Route](#type-route)
 
 </details>
 
-Links: [API](#api), [Classes](#classes), [Functions](#functions), [Types](#types), [Variables](#variables)
+Links: [API](#api), [Classes](#classes), [Functions](#functions), [Types](#types)
 
 ---
 ## Class: File
 
-WARNING: API will change!
+> ⚠️ WARNING: API will change!
 
 ```ts
 export class File {
@@ -297,7 +298,7 @@ lines as strings, removes trailing '\n'
 
 </details>
 
-Links: [API](#api), [Classes](#classes), [Functions](#functions), [Types](#types), [Variables](#variables)
+Links: [API](#api), [Classes](#classes), [Functions](#functions), [Types](#types)
 
 ---
 ## Class: FileType
@@ -314,7 +315,7 @@ export class FileType {
 }
 ```
 
-Links: [API](#api), [Classes](#classes), [Functions](#functions), [Types](#types), [Variables](#variables)
+Links: [API](#api), [Classes](#classes), [Functions](#functions), [Types](#types)
 
 ---
 ## Class: FileTypeCsv
@@ -333,7 +334,7 @@ export class FileTypeCsv<Row extends object> extends FileType {
 
 See also: [FileType](#class-filetype)
 
-Links: [API](#api), [Classes](#classes), [Functions](#functions), [Types](#types), [Variables](#variables)
+Links: [API](#api), [Classes](#classes), [Functions](#functions), [Types](#types)
 
 ---
 ## Class: FileTypeJson
@@ -351,7 +352,7 @@ export class FileTypeJson<T> extends FileType {
 
 See also: [FileType](#class-filetype)
 
-Links: [API](#api), [Classes](#classes), [Functions](#functions), [Types](#types), [Variables](#variables)
+Links: [API](#api), [Classes](#classes), [Functions](#functions), [Types](#types)
 
 ---
 ## Class: FileTypeNdjson
@@ -368,7 +369,58 @@ export class FileTypeNdjson<T extends object> extends FileType {
 
 See also: [FileType](#class-filetype)
 
-Links: [API](#api), [Classes](#classes), [Functions](#functions), [Types](#types), [Variables](#variables)
+Links: [API](#api), [Classes](#classes), [Functions](#functions), [Types](#types)
+
+---
+## Class: Format
+
+Helpers for formatting dates, times, and numbers as strings
+
+```ts
+export class Format {
+    static date(formatStr: "iso" | "ymd" | string = "iso", d: DateArg<Date> = new Date()) 
+    static round(n: number, places = 0) 
+    static ms(ms: number) 
+    static bytes(b: number) 
+}
+```
+
+<details>
+
+<summary>Class Format Details</summary>
+
+### Method date
+
+date-fns format() with some shortcuts
+
+```ts
+static date(formatStr: "iso" | "ymd" | string = "iso", d: DateArg<Date> = new Date()) 
+```
+
+Argument Details
+
++ **formatStr**
+  + 'iso' to get ISO date, 'ymd' to format as 'yyyy-MM-dd', full options: https://date-fns.org/v4.1.0/docs/format
+
+### Method ms
+
+Make millisecond durations actually readable (eg "123ms", "3.56s", "1m 34s", "3h 24m", "2d 4h")
+
+```ts
+static ms(ms: number) 
+```
+
+### Method round
+
+Round a number to a specific set of places
+
+```ts
+static round(n: number, places = 0) 
+```
+
+</details>
+
+Links: [API](#api), [Classes](#classes), [Functions](#functions), [Types](#types)
 
 ---
 ## Class: Log
@@ -433,7 +485,7 @@ static prepare(...input: unknown[]): {
 
 </details>
 
-Links: [API](#api), [Classes](#classes), [Functions](#functions), [Types](#types), [Variables](#variables)
+Links: [API](#api), [Classes](#classes), [Functions](#functions), [Types](#types)
 
 ---
 ## Class: TempDir
@@ -448,7 +500,7 @@ export class TempDir extends Dir {
 
 See also: [Dir](#class-dir)
 
-Links: [API](#api), [Classes](#classes), [Functions](#functions), [Types](#types), [Variables](#variables)
+Links: [API](#api), [Classes](#classes), [Functions](#functions), [Types](#types)
 
 ---
 ## Class: TypeWriter
@@ -482,7 +534,7 @@ async toString()
 
 </details>
 
-Links: [API](#api), [Classes](#classes), [Functions](#functions), [Types](#types), [Variables](#variables)
+Links: [API](#api), [Classes](#classes), [Functions](#functions), [Types](#types)
 
 ---
 # Functions
@@ -490,9 +542,10 @@ Links: [API](#api), [Classes](#classes), [Functions](#functions), [Types](#types
 | |
 | --- |
 | [snapshot](#function-snapshot) |
+| [temp](#function-temp) |
 | [timeout](#function-timeout) |
 
-Links: [API](#api), [Classes](#classes), [Functions](#functions), [Types](#types), [Variables](#variables)
+Links: [API](#api), [Classes](#classes), [Functions](#functions), [Types](#types)
 
 ---
 
@@ -505,7 +558,18 @@ functions are removed
 export function snapshot(i: unknown, max = 50, depth = 0): any 
 ```
 
-Links: [API](#api), [Classes](#classes), [Functions](#functions), [Types](#types), [Variables](#variables)
+Links: [API](#api), [Classes](#classes), [Functions](#functions), [Types](#types)
+
+---
+## Function: temp
+
+Creates a '.temp' directory in current working directory
+
+```ts
+export function temp() 
+```
+
+Links: [API](#api), [Classes](#classes), [Functions](#functions), [Types](#types)
 
 ---
 ## Function: timeout
@@ -514,7 +578,7 @@ Links: [API](#api), [Classes](#classes), [Functions](#functions), [Types](#types
 export async function timeout(ms: number) 
 ```
 
-Links: [API](#api), [Classes](#classes), [Functions](#functions), [Types](#types), [Variables](#variables)
+Links: [API](#api), [Classes](#classes), [Functions](#functions), [Types](#types)
 
 ---
 # Types
@@ -525,7 +589,7 @@ Links: [API](#api), [Classes](#classes), [Functions](#functions), [Types](#types
 | [Query](#type-query) |
 | [Route](#type-route) |
 
-Links: [API](#api), [Classes](#classes), [Functions](#functions), [Types](#types), [Variables](#variables)
+Links: [API](#api), [Classes](#classes), [Functions](#functions), [Types](#types)
 
 ---
 
@@ -545,7 +609,7 @@ export type FetchOptions = RequestInit & {
 
 See also: [Query](#type-query), [timeout](#function-timeout)
 
-Links: [API](#api), [Classes](#classes), [Functions](#functions), [Types](#types), [Variables](#variables)
+Links: [API](#api), [Classes](#classes), [Functions](#functions), [Types](#types)
 
 ---
 ## Type: Query
@@ -554,7 +618,7 @@ Links: [API](#api), [Classes](#classes), [Functions](#functions), [Types](#types
 export type Query = Record<string, QueryVal | QueryVal[]>
 ```
 
-Links: [API](#api), [Classes](#classes), [Functions](#functions), [Types](#types), [Variables](#variables)
+Links: [API](#api), [Classes](#classes), [Functions](#functions), [Types](#types)
 
 ---
 ## Type: Route
@@ -563,20 +627,7 @@ Links: [API](#api), [Classes](#classes), [Functions](#functions), [Types](#types
 export type Route = string | URL
 ```
 
-Links: [API](#api), [Classes](#classes), [Functions](#functions), [Types](#types), [Variables](#variables)
-
----
-# Variables
-
-## Variable: temp
-
-```ts
-temp = new TempDir(".temp")
-```
-
-See also: [TempDir](#class-tempdir)
-
-Links: [API](#api), [Classes](#classes), [Functions](#functions), [Types](#types), [Variables](#variables)
+Links: [API](#api), [Classes](#classes), [Functions](#functions), [Types](#types)
 
 ---
 
