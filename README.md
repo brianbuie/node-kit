@@ -14,6 +14,35 @@ npm add @brianbuie/node-kit
 import { Fetcher, Log } from '@brianbuie/node-kit';
 ```
 
+# Extending Config
+
+### tsconfig.json
+
+```json
+{
+  "extends": "./node_modules/@brianbuie/node-kit/tsconfig.json"
+}
+```
+
+### prettier.config.ts
+
+```ts
+export * from './node_modules/@brianbuie/node-kit/prettier.config.ts';
+```
+
+Or make changes:
+
+```ts
+import baseConfig from './node_modules/@brianbuie/node-kit/prettier.config.ts';
+
+const config = {
+  ...baseConfig,
+  printWidth: 80,
+};
+
+export default config;
+```
+
 # API
 
 <!--#region ts2md-api-merged-here-->
