@@ -23,12 +23,16 @@ describe('File', () => {
     });
     assert(img.exists);
   });
+
+  it('Sets correct content type from .ext', () => {
+    assert.equal(new File('test1').type, undefined);
+    assert.equal(new File('test2.json').type, 'application/json');
+    assert.equal(new File('test3.jpg').type, 'image/jpeg');
+  });
 });
 
 describe('FileType', () => {
   it('Creates instances', () => {
-    const test1 = new File.FileType(testDir.filepath('test1.txt'));
-    assert(test1.file.path.includes('test1.txt'));
     const base = 'test2';
     const eg1 = new File.json(testDir.filepath(base));
     const eg2 = testDir.file(base).json();

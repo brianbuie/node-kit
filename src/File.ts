@@ -2,38 +2,51 @@ import * as fs from 'node:fs';
 import * as path from 'node:path';
 import { Readable } from 'node:stream';
 import { finished } from 'node:stream/promises';
+import mime from 'mime-types';
 import { writeToStream, parseStream } from 'fast-csv';
 import { snapshot } from './snapshot.ts';
 
 /**
- * > ⚠️ WARNING: API will change!
+ * Represents a file on the file system. If the file doesn't exist, it is created the first time it is written to.
  */
 export class File {
   path;
   root;
   dir;
   base;
-  ext;
   name;
+  ext;
+  type;
 
   constructor(filepath: string) {
-    this.path = filepath;
-    const { root, dir, base, ext, name } = path.parse(filepath);
+    this.path = path.resolve(filepath);
+    const { root, dir, base, ext, name } = path.parse(this.path);
     this.root = root;
     this.dir = dir;
     this.base = base;
-    this.ext = ext;
     this.name = name;
+    this.ext = ext;
+    this.type = mime.lookup(ext) || undefined;
   }
 
   get exists() {
     return fs.existsSync(this.path);
   }
 
+  get stats(): Partial<fs.Stats> {
+    return this.exists ? fs.statSync(this.path) : {};
+  }
+
+  /**
+   * Deletes the file if it exists
+   */
   delete() {
     fs.rmSync(this.path, { force: true });
   }
 
+  /**
+   * @returns the contents of the file as a string, or undefined if the file doesn't exist
+   */
   read() {
     return this.exists ? fs.readFileSync(this.path, 'utf8') : undefined;
   }
@@ -43,7 +56,7 @@ export class File {
    */
   lines() {
     const contents = (this.read() || '').split('\n');
-    return contents.slice(0, contents.length - 1);
+    return contents.at(-1)?.length ? contents : contents.slice(0, contents.length - 1);
   }
 
   get readStream() {
@@ -51,12 +64,12 @@ export class File {
   }
 
   get writeStream() {
-    fs.mkdirSync(path.parse(this.path).dir, { recursive: true });
+    fs.mkdirSync(this.dir, { recursive: true });
     return fs.createWriteStream(this.path);
   }
 
   write(contents: string | ReadableStream) {
-    fs.mkdirSync(path.parse(this.path).dir, { recursive: true });
+    fs.mkdirSync(this.dir, { recursive: true });
     if (typeof contents === 'string') return fs.writeFileSync(this.path, contents);
     if (contents instanceof ReadableStream) return finished(Readable.from(contents).pipe(this.writeStream));
     throw new Error(`Invalid content type: ${typeof contents}`);
@@ -72,26 +85,51 @@ export class File {
     fs.appendFileSync(this.path, contents + '\n');
   }
 
-  static get FileType() {
-    return FileType;
-  }
-
+  /**
+   * @returns FileTypeJson adaptor for current File, adds '.json' extension if not present.
+   * @example
+   * const file = new File('./data').json({ key: 'val' }); // FileTypeJson<{ key: string; }>
+   * console.log(file.path) // '/path/to/cwd/data.json'
+   * file.write({ something: 'else' }) // ❌ property 'something' doesn't exist on type { key: string; }
+   * @example
+   * const file = new File('./data').json<object>({ key: 'val' }); // FileTypeJson<object>
+   * file.write({ something: 'else' }) // ✅ data is typed as object
+   */
   json<T>(contents?: T) {
     return new FileTypeJson<T>(this.path, contents);
   }
 
+  /**
+   * @example
+   * const file = new File.json('data.json', { key: 'val' }); // FileTypeJson<{ key: string; }>
+   */
   static get json() {
     return FileTypeJson;
   }
 
+  /**
+   * @returns FileTypeNdjson adaptor for current File, adds '.ndjson' extension if not present.
+   */
   ndjson<T extends object>(lines?: T | T[]) {
     return new FileTypeNdjson<T>(this.path, lines);
   }
-
+  /**
+   * @example
+   * const file = new File.ndjson('log', { key: 'val' }); // FileTypeNdjson<{ key: string; }>
+   * console.log(file.path) // /path/to/cwd/log.ndjson
+   */
   static get ndjson() {
     return FileTypeNdjson;
   }
 
+  /**
+   * @returns FileTypeCsv adaptor for current File, adds '.csv' extension if not present.
+   * @example
+   * const file = await new File('a').csv([{ col: 'val' }, { col: 'val2' }]); // FileTypeCsv<{ col: string; }>
+   * await file.write([ { col2: 'val2' } ]); // ❌ 'col2' doesn't exist on type { col: string; }
+   * await file.write({ col: 'val' }); // ✅ Writes one row
+   * await file.write([{ col: 'val2' }, { col: 'val3' }]); // ✅ Writes multiple rows
+   */
   async csv<T extends object>(rows?: T[], keys?: (keyof T)[]) {
     const csvFile = new FileTypeCsv<T>(this.path);
     if (rows) await csvFile.write(rows, keys);
@@ -130,6 +168,13 @@ export class FileType {
 /**
  * A .json file that maintains data type when reading/writing.
  * > ⚠️ This is mildly unsafe, important/foreign json files should be validated at runtime!
+ * @example
+ * const file = new FileTypeJson('./data', { key: 'val' }); // FileTypeJson<{ key: string; }>
+ * console.log(file.path) // '/path/to/cwd/data.json'
+ * file.write({ something: 'else' }) // ❌ property 'something' doesn't exist on type { key: string; }
+ * @example
+ * const file = new FileTypeJson<object>('./data', { key: 'val' }); // FileTypeJson<object>
+ * file.write({ something: 'else' }) // ✅ data is typed as object
  */
 export class FileTypeJson<T> extends FileType {
   constructor(filepath: string, contents?: T) {
@@ -205,7 +250,6 @@ export class FileTypeCsv<Row extends object> extends FileType {
     return new Promise<Row[]>((resolve, reject) => {
       const parsed: Row[] = [];
       parseStream(this.file.readStream, { headers: true })
-        .on('error', (e) => reject(e))
         .on('data', (raw: Record<Key<Row>, string>) => {
           parsed.push(
             Object.entries(raw).reduce(
@@ -217,6 +261,7 @@ export class FileTypeCsv<Row extends object> extends FileType {
             ),
           );
         })
+        .on('error', (e) => reject(e))
         .on('end', () => resolve(parsed));
     });
   }

@@ -258,7 +258,7 @@ Links: [API](#api), [Classes](#classes), [Functions](#functions), [Types](#types
 ---
 ## Class: File
 
-> ⚠️ WARNING: API will change!
+Represents a file on the file system. If the file doesn't exist, it is created the first time it is written to.
 
 ```ts
 export class File {
@@ -266,10 +266,12 @@ export class File {
     root;
     dir;
     base;
-    ext;
     name;
+    ext;
+    type;
     constructor(filepath: string) 
     get exists() 
+    get stats(): Partial<fs.Stats> 
     delete() 
     read() 
     lines() 
@@ -277,7 +279,6 @@ export class File {
     get writeStream() 
     write(contents: string | ReadableStream) 
     append(lines: string | string[]) 
-    static get FileType() 
     json<T>(contents?: T) 
     static get json() 
     ndjson<T extends object>(lines?: T | T[]) 
@@ -286,8 +287,6 @@ export class File {
     static get csv() 
 }
 ```
-
-See also: [FileType](#class-filetype)
 
 <details>
 
@@ -302,6 +301,56 @@ File always ends with '\n', so contents don't need to be read before appending
 append(lines: string | string[]) 
 ```
 
+### Method csv
+
+```ts
+async csv<T extends object>(rows?: T[], keys?: (keyof T)[]) 
+```
+
+Returns
+
+FileTypeCsv adaptor for current File, adds '.csv' extension if not present.
+
+Example
+
+```ts
+const file = await new File('a').csv([{ col: 'val' }, { col: 'val2' }]); // FileTypeCsv<{ col: string; }>
+await file.write([ { col2: 'val2' } ]); // ❌ 'col2' doesn't exist on type { col: string; }
+await file.write({ col: 'val' }); // ✅ Writes one row
+await file.write([{ col: 'val2' }, { col: 'val3' }]); // ✅ Writes multiple rows
+```
+
+### Method delete
+
+Deletes the file if it exists
+
+```ts
+delete() 
+```
+
+### Method json
+
+```ts
+json<T>(contents?: T) 
+```
+
+Returns
+
+FileTypeJson adaptor for current File, adds '.json' extension if not present.
+
+Examples
+
+```ts
+const file = new File('./data').json({ key: 'val' }); // FileTypeJson<{ key: string; }>
+console.log(file.path) // '/path/to/cwd/data.json'
+file.write({ something: 'else' }) // ❌ property 'something' doesn't exist on type { key: string; }
+```
+
+```ts
+const file = new File('./data').json<object>({ key: 'val' }); // FileTypeJson<object>
+file.write({ something: 'else' }) // ✅ data is typed as object
+```
+
 ### Method lines
 
 ```ts
@@ -311,6 +360,26 @@ lines()
 Returns
 
 lines as strings, removes trailing '\n'
+
+### Method ndjson
+
+```ts
+ndjson<T extends object>(lines?: T | T[]) 
+```
+
+Returns
+
+FileTypeNdjson adaptor for current File, adds '.ndjson' extension if not present.
+
+### Method read
+
+```ts
+read() 
+```
+
+Returns
+
+the contents of the file as a string, or undefined if the file doesn't exist
 
 </details>
 
@@ -357,6 +426,19 @@ Links: [API](#api), [Classes](#classes), [Functions](#functions), [Types](#types
 
 A .json file that maintains data type when reading/writing.
 > ⚠️ This is mildly unsafe, important/foreign json files should be validated at runtime!
+
+Examples
+
+```ts
+const file = new FileTypeJson('./data', { key: 'val' }); // FileTypeJson<{ key: string; }>
+console.log(file.path) // '/path/to/cwd/data.json'
+file.write({ something: 'else' }) // ❌ property 'something' doesn't exist on type { key: string; }
+```
+
+```ts
+const file = new FileTypeJson<object>('./data', { key: 'val' }); // FileTypeJson<object>
+file.write({ something: 'else' }) // ✅ data is typed as object
+```
 
 ```ts
 export class FileTypeJson<T> extends FileType {
