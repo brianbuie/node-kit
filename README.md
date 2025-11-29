@@ -66,12 +66,14 @@ Links: [API](#api), [Classes](#classes), [Functions](#functions), [Types](#types
 ## Class: Dir
 
 Reference to a specific directory with methods to create and list files.
-Created immediately if it doesn't exist
+Created immediately if it doesn't exist.
+Default path: './'
 
 ```ts
 export class Dir {
     path;
     constructor(inputPath = "./") 
+    notAbsolute(subPath: string) 
     dir(subPath: string) 
     tempDir(subPath: string) 
     sanitize(filename: string) 
@@ -127,7 +129,7 @@ filepath(base: string)
 Argument Details
 
 + **base**
-  + The file name with extension
+  + The file base (name and extension)
 
 Example
 

@@ -6,7 +6,7 @@ import { writeToStream, parseStream } from 'fast-csv';
 import { snapshot } from './snapshot.ts';
 
 /**
- * WARNING: API will change!
+ * > ⚠️ WARNING: API will change!
  */
 export class File {
   path;

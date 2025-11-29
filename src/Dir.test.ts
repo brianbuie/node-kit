@@ -18,9 +18,19 @@ describe('Dir', () => {
     assert(sub.path.includes(subPath));
   });
 
-  it('TempDir.tempDir returns instance of TempDir', () => {
+  it('.tempDir returns instance of TempDir', () => {
     const sub = temp().tempDir('example');
     assert(sub instanceof TempDir);
+  });
+
+  it('.dir() and .tempDir() throw on absolute path input', () => {
+    const t = temp();
+    assert.throws(() => {
+      t.dir(t.path);
+    });
+    assert.throws(() => {
+      t.tempDir(t.path);
+    });
   });
 
   it('Resolves filenames in folder', () => {

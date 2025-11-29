@@ -5,7 +5,8 @@ import { File } from './File.ts';
 
 /**
  * Reference to a specific directory with methods to create and list files.
- * Created immediately if it doesn't exist
+ * Created immediately if it doesn't exist.
+ * Default path: './'
  */
 export class Dir {
   path;
@@ -18,6 +19,11 @@ export class Dir {
     fs.mkdirSync(this.path, { recursive: true });
   }
 
+  notAbsolute(subPath: string) {
+    if (path.isAbsolute(subPath)) throw new Error(`Absolute path provided: "${subPath}"`);
+    return subPath;
+  }
+
   /**
    * Create a new Dir inside the current Dir
    * @param subPath relative path to create
@@ -28,19 +34,20 @@ export class Dir {
    * // child.path = '/absolute/path/to/example/path/to/dir'
    */
   dir(subPath: string) {
-    return new Dir(path.resolve(this.path, subPath));
+    return new Dir(path.resolve(this.path, this.notAbsolute(subPath)));
   }
 
   tempDir(subPath: string) {
-    return new TempDir(path.resolve(this.path, subPath));
+    return new TempDir(path.resolve(this.path, this.notAbsolute(subPath)));
   }
 
   sanitize(filename: string) {
-    return sanitizeFilename(filename.replace('https://', '').replace('www.', ''), { replacement: '_' }).slice(-200);
+    const notUrl = filename.replace('https://', '').replace('www.', '');
+    return sanitizeFilename(notUrl, { replacement: '_' }).slice(-200);
   }
 
   /**
-   * @param base - The file name with extension
+   * @param base - The file base (name and extension)
    * @example
    * const folder = new Dir('example');
    * const filepath = folder.resolve('file.json');
@@ -60,9 +67,17 @@ export class Dir {
 }
 
 /**
- * Extends Dir class with method to `clear()` contents
+ * Extends Dir class with method to `clear()` contents.
+ * Default path: `./.${Date.now()}`
  */
 export class TempDir extends Dir {
+  constructor(inputPath = `./.${Date.now()}`) {
+    super(inputPath);
+  }
+
+  /**
+   * > ⚠️ Warning! This deletes the directory, make sure it's not
+   */
   clear() {
     fs.rmSync(this.path, { recursive: true, force: true });
     fs.mkdirSync(this.path, { recursive: true });
