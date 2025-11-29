@@ -5,18 +5,29 @@ import { File } from './File.ts';
 
 /**
  * Reference to a specific directory with methods to create and list files.
- * Created immediately if it doesn't exist.
  * Default path: './'
+ * > Created on file system the first time .path is read or any methods are used
  */
 export class Dir {
-  path;
+  #inputPath;
+  #resolved?: string;
 
   /**
    * @param path can be relative to workspace or absolute
    */
   constructor(inputPath = './') {
-    this.path = path.resolve(inputPath);
-    fs.mkdirSync(this.path, { recursive: true });
+    this.#inputPath = path.resolve(inputPath);
+  }
+
+  /**
+   * The path of this Dir instance. Created on file system the first time this property is read/used.
+   */
+  get path() {
+    if (!this.#resolved) {
+      this.#resolved = path.resolve(this.#inputPath);
+      fs.mkdirSync(this.#resolved, { recursive: true });
+    }
+    return this.#resolved;
   }
 
   notAbsolute(subPath: string) {
@@ -26,7 +37,7 @@ export class Dir {
 
   /**
    * Create a new Dir inside the current Dir
-   * @param subPath relative path to create
+   * @param subPath relative path to create (not absolute)
    * @example
    * const folder = new Dir('example');
    * // folder.path = '/absolute/path/to/example'
@@ -37,6 +48,10 @@ export class Dir {
     return new Dir(path.resolve(this.path, this.notAbsolute(subPath)));
   }
 
+  /**
+   * Creates a new TempDir inside current Dir
+   * @param subPath relative path to create (not absolute)
+   */
   tempDir(subPath: string) {
     return new TempDir(path.resolve(this.path, this.notAbsolute(subPath)));
   }
@@ -68,15 +83,15 @@ export class Dir {
 
 /**
  * Extends Dir class with method to `clear()` contents.
- * Default path: `./.${Date.now()}`
+ * Default path: `./.temp`
  */
 export class TempDir extends Dir {
-  constructor(inputPath = `./.${Date.now()}`) {
+  constructor(inputPath = `./.temp`) {
     super(inputPath);
   }
 
   /**
-   * > ⚠️ Warning! This deletes the directory, make sure it's not
+   * > ⚠️ Warning! This deletes the directory!
    */
   clear() {
     fs.rmSync(this.path, { recursive: true, force: true });
@@ -85,8 +100,6 @@ export class TempDir extends Dir {
 }
 
 /**
- * Creates a '.temp' directory in current working directory
+ * './.temp' in current working directory
  */
-export function temp() {
-  return new TempDir('.temp');
-}
+export const temp = new TempDir();

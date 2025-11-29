@@ -18,7 +18,7 @@ import { Fetcher, Log } from '@brianbuie/node-kit';
 
 <!--#region ts2md-api-merged-here-->
 
-Links: [API](#api), [Classes](#classes), [Functions](#functions), [Types](#types)
+Links: [API](#api), [Classes](#classes), [Functions](#functions), [Types](#types), [Variables](#variables)
 
 # Classes
 
@@ -37,7 +37,7 @@ Links: [API](#api), [Classes](#classes), [Functions](#functions), [Types](#types
 | [TempDir](#class-tempdir) |
 | [TypeWriter](#class-typewriter) |
 
-Links: [API](#api), [Classes](#classes), [Functions](#functions), [Types](#types)
+Links: [API](#api), [Classes](#classes), [Functions](#functions), [Types](#types), [Variables](#variables)
 
 ---
 
@@ -60,19 +60,21 @@ export class Cache<T> {
 }
 ```
 
-Links: [API](#api), [Classes](#classes), [Functions](#functions), [Types](#types)
+Links: [API](#api), [Classes](#classes), [Functions](#functions), [Types](#types), [Variables](#variables)
 
 ---
 ## Class: Dir
 
 Reference to a specific directory with methods to create and list files.
-Created immediately if it doesn't exist.
 Default path: './'
+> Created on file system the first time .path is read or any methods are used
 
 ```ts
 export class Dir {
-    path;
+    #inputPath;
+    #resolved?: string;
     constructor(inputPath = "./") 
+    get path() 
     notAbsolute(subPath: string) 
     dir(subPath: string) 
     tempDir(subPath: string) 
@@ -109,7 +111,7 @@ dir(subPath: string)
 Argument Details
 
 + **subPath**
-  + relative path to create
+  + relative path to create (not absolute)
 
 Example
 
@@ -139,9 +141,22 @@ const filepath = folder.resolve('file.json');
 // 'example/file.json'
 ```
 
+### Method tempDir
+
+Creates a new TempDir inside current Dir
+
+```ts
+tempDir(subPath: string) 
+```
+
+Argument Details
+
++ **subPath**
+  + relative path to create (not absolute)
+
 </details>
 
-Links: [API](#api), [Classes](#classes), [Functions](#functions), [Types](#types)
+Links: [API](#api), [Classes](#classes), [Functions](#functions), [Types](#types), [Variables](#variables)
 
 ---
 ## Class: Fetcher
@@ -239,7 +254,7 @@ See also: [FetchOptions](#type-fetchoptions), [Route](#type-route)
 
 </details>
 
-Links: [API](#api), [Classes](#classes), [Functions](#functions), [Types](#types)
+Links: [API](#api), [Classes](#classes), [Functions](#functions), [Types](#types), [Variables](#variables)
 
 ---
 ## Class: File
@@ -300,7 +315,7 @@ lines as strings, removes trailing '\n'
 
 </details>
 
-Links: [API](#api), [Classes](#classes), [Functions](#functions), [Types](#types)
+Links: [API](#api), [Classes](#classes), [Functions](#functions), [Types](#types), [Variables](#variables)
 
 ---
 ## Class: FileType
@@ -317,7 +332,7 @@ export class FileType {
 }
 ```
 
-Links: [API](#api), [Classes](#classes), [Functions](#functions), [Types](#types)
+Links: [API](#api), [Classes](#classes), [Functions](#functions), [Types](#types), [Variables](#variables)
 
 ---
 ## Class: FileTypeCsv
@@ -336,7 +351,7 @@ export class FileTypeCsv<Row extends object> extends FileType {
 
 See also: [FileType](#class-filetype)
 
-Links: [API](#api), [Classes](#classes), [Functions](#functions), [Types](#types)
+Links: [API](#api), [Classes](#classes), [Functions](#functions), [Types](#types), [Variables](#variables)
 
 ---
 ## Class: FileTypeJson
@@ -354,7 +369,7 @@ export class FileTypeJson<T> extends FileType {
 
 See also: [FileType](#class-filetype)
 
-Links: [API](#api), [Classes](#classes), [Functions](#functions), [Types](#types)
+Links: [API](#api), [Classes](#classes), [Functions](#functions), [Types](#types), [Variables](#variables)
 
 ---
 ## Class: FileTypeNdjson
@@ -371,7 +386,7 @@ export class FileTypeNdjson<T extends object> extends FileType {
 
 See also: [FileType](#class-filetype)
 
-Links: [API](#api), [Classes](#classes), [Functions](#functions), [Types](#types)
+Links: [API](#api), [Classes](#classes), [Functions](#functions), [Types](#types), [Variables](#variables)
 
 ---
 ## Class: Format
@@ -422,7 +437,7 @@ static round(n: number, places = 0)
 
 </details>
 
-Links: [API](#api), [Classes](#classes), [Functions](#functions), [Types](#types)
+Links: [API](#api), [Classes](#classes), [Functions](#functions), [Types](#types), [Variables](#variables)
 
 ---
 ## Class: Log
@@ -486,22 +501,22 @@ static prepare(...input: unknown[]): {
 
 </details>
 
-Links: [API](#api), [Classes](#classes), [Functions](#functions), [Types](#types)
+Links: [API](#api), [Classes](#classes), [Functions](#functions), [Types](#types), [Variables](#variables)
 
 ---
 ## Class: TempDir
 
 Extends Dir class with method to `clear()` contents.
-Default path: `./.${Date.now()}`
+Default path: `./.temp`
 
 ```ts
 export class TempDir extends Dir {
-    constructor(inputPath = `./.${Date.now()}`) 
+    constructor(inputPath = `./.temp`) 
     clear() 
 }
 ```
 
-See also: [Dir](#class-dir)
+See also: [Dir](#class-dir), [temp](#variable-temp)
 
 <details>
 
@@ -509,7 +524,7 @@ See also: [Dir](#class-dir)
 
 ### Method clear
 
-> ⚠️ Warning! This deletes the directory, make sure it's not
+> ⚠️ Warning! This deletes the directory!
 
 ```ts
 clear() 
@@ -517,7 +532,7 @@ clear()
 
 </details>
 
-Links: [API](#api), [Classes](#classes), [Functions](#functions), [Types](#types)
+Links: [API](#api), [Classes](#classes), [Functions](#functions), [Types](#types), [Variables](#variables)
 
 ---
 ## Class: TypeWriter
@@ -551,7 +566,7 @@ async toString()
 
 </details>
 
-Links: [API](#api), [Classes](#classes), [Functions](#functions), [Types](#types)
+Links: [API](#api), [Classes](#classes), [Functions](#functions), [Types](#types), [Variables](#variables)
 
 ---
 # Functions
@@ -559,10 +574,9 @@ Links: [API](#api), [Classes](#classes), [Functions](#functions), [Types](#types
 | |
 | --- |
 | [snapshot](#function-snapshot) |
-| [temp](#function-temp) |
 | [timeout](#function-timeout) |
 
-Links: [API](#api), [Classes](#classes), [Functions](#functions), [Types](#types)
+Links: [API](#api), [Classes](#classes), [Functions](#functions), [Types](#types), [Variables](#variables)
 
 ---
 
@@ -575,18 +589,7 @@ functions are removed
 export function snapshot(i: unknown, max = 50, depth = 0): any 
 ```
 
-Links: [API](#api), [Classes](#classes), [Functions](#functions), [Types](#types)
-
----
-## Function: temp
-
-Creates a '.temp' directory in current working directory
-
-```ts
-export function temp() 
-```
-
-Links: [API](#api), [Classes](#classes), [Functions](#functions), [Types](#types)
+Links: [API](#api), [Classes](#classes), [Functions](#functions), [Types](#types), [Variables](#variables)
 
 ---
 ## Function: timeout
@@ -595,7 +598,7 @@ Links: [API](#api), [Classes](#classes), [Functions](#functions), [Types](#types
 export async function timeout(ms: number) 
 ```
 
-Links: [API](#api), [Classes](#classes), [Functions](#functions), [Types](#types)
+Links: [API](#api), [Classes](#classes), [Functions](#functions), [Types](#types), [Variables](#variables)
 
 ---
 # Types
@@ -606,7 +609,7 @@ Links: [API](#api), [Classes](#classes), [Functions](#functions), [Types](#types
 | [Query](#type-query) |
 | [Route](#type-route) |
 
-Links: [API](#api), [Classes](#classes), [Functions](#functions), [Types](#types)
+Links: [API](#api), [Classes](#classes), [Functions](#functions), [Types](#types), [Variables](#variables)
 
 ---
 
@@ -626,7 +629,7 @@ export type FetchOptions = RequestInit & {
 
 See also: [Query](#type-query), [timeout](#function-timeout)
 
-Links: [API](#api), [Classes](#classes), [Functions](#functions), [Types](#types)
+Links: [API](#api), [Classes](#classes), [Functions](#functions), [Types](#types), [Variables](#variables)
 
 ---
 ## Type: Query
@@ -635,7 +638,7 @@ Links: [API](#api), [Classes](#classes), [Functions](#functions), [Types](#types
 export type Query = Record<string, QueryVal | QueryVal[]>
 ```
 
-Links: [API](#api), [Classes](#classes), [Functions](#functions), [Types](#types)
+Links: [API](#api), [Classes](#classes), [Functions](#functions), [Types](#types), [Variables](#variables)
 
 ---
 ## Type: Route
@@ -644,7 +647,20 @@ Links: [API](#api), [Classes](#classes), [Functions](#functions), [Types](#types
 export type Route = string | URL
 ```
 
-Links: [API](#api), [Classes](#classes), [Functions](#functions), [Types](#types)
+Links: [API](#api), [Classes](#classes), [Functions](#functions), [Types](#types), [Variables](#variables)
+
+---
+# Variables
+
+## Variable: temp
+
+```ts
+temp = new TempDir()
+```
+
+See also: [TempDir](#class-tempdir)
+
+Links: [API](#api), [Classes](#classes), [Functions](#functions), [Types](#types), [Variables](#variables)
 
 ---
 

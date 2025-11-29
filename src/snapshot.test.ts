@@ -3,6 +3,9 @@ import assert from 'node:assert';
 import { snapshot } from './snapshot.ts';
 import { temp } from './Dir.ts';
 
+const testDir = temp.tempDir('snapshot');
+testDir.clear();
+
 describe('snapshot', () => {
   it('Captures Error details', () => {
     try {
@@ -46,9 +49,9 @@ describe('snapshot', () => {
     const t1 = createThing(1);
     const t2 = createThing(2, t1);
     const result = snapshot(t1, 20) as Thing;
-    const f1 = temp().file('recursive').json(result);
+    const f1 = testDir.file('recursive').json(result);
     const parsed = f1.read();
-    const f2 = temp().file('recursive2').json(parsed);
+    const f2 = testDir.file('recursive2').json(parsed);
     assert.deepEqual(f1.read(), f2.read());
   });
 });

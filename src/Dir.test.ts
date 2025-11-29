@@ -3,7 +3,7 @@ import assert from 'node:assert';
 import { Dir, TempDir, temp } from './Dir.ts';
 
 describe('Dir', () => {
-  const testDir = temp().dir('dir-test');
+  const testDir = temp.dir('dir-test');
 
   it('Sanitizes filenames', () => {
     const name = testDir.sanitize(':/something/else.json');
@@ -19,23 +19,22 @@ describe('Dir', () => {
   });
 
   it('.tempDir returns instance of TempDir', () => {
-    const sub = temp().tempDir('example');
+    const sub = testDir.tempDir('example');
     assert(sub instanceof TempDir);
   });
 
   it('.dir() and .tempDir() throw on absolute path input', () => {
-    const t = temp();
     assert.throws(() => {
-      t.dir(t.path);
+      testDir.dir(testDir.path);
     });
     assert.throws(() => {
-      t.tempDir(t.path);
+      testDir.tempDir(testDir.path);
     });
   });
 
   it('Resolves filenames in folder', () => {
-    const txt = temp().filepath('test.txt');
-    assert(txt.includes(temp().path));
+    const txt = testDir.filepath('test.txt');
+    assert(txt.includes(testDir.path));
     assert(txt.includes('test.txt'));
   });
 });
