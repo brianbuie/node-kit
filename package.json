@@ -24,7 +24,8 @@
   "files": [
     "src",
     "dist",
-    "tsconfig.json"
+    "tsconfig.json",
+    "prettier.config.ts"
   ],
   "engines": {
     "node": ">=24"
