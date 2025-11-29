@@ -423,9 +423,18 @@ A generic file adaptor, extended by specific file type implementations
 export class FileType {
     file;
     constructor(filepath: string, contents?: string) 
-    get exists() 
     get path() 
+    get root() 
+    get dir() 
+    get base() 
+    get name() 
+    get ext() 
+    get type() 
+    get exists() 
+    get stats() 
     delete() 
+    get readStream() 
+    get writeStream() 
 }
 ```
 

@@ -152,16 +152,52 @@ export class FileType {
     if (contents) this.file.write(contents);
   }
 
-  get exists() {
-    return this.file.exists;
-  }
-
   get path() {
     return this.file.path;
   }
 
+  get root() {
+    return this.file.root;
+  }
+
+  get dir() {
+    return this.file.dir;
+  }
+
+  get base() {
+    return this.file.base;
+  }
+
+  get name() {
+    return this.file.name;
+  }
+
+  get ext() {
+    return this.file.ext;
+  }
+
+  get type() {
+    return this.file.type;
+  }
+
+  get exists() {
+    return this.file.exists;
+  }
+
+  get stats() {
+    return this.file.stats;
+  }
+
   delete() {
     this.file.delete();
+  }
+
+  get readStream() {
+    return this.file.readStream;
+  }
+
+  get writeStream() {
+    return this.file.writeStream;
   }
 }
 
@@ -204,12 +240,12 @@ export class FileTypeNdjson<T extends object> extends FileType {
 
   append(lines: T | T[]) {
     this.file.append(
-      Array.isArray(lines) ? lines.map((l) => JSON.stringify(snapshot(l))) : JSON.stringify(snapshot(lines)),
+      Array.isArray(lines) ? lines.map(l => JSON.stringify(snapshot(l))) : JSON.stringify(snapshot(lines)),
     );
   }
 
   lines() {
-    return this.file.lines().map((l) => JSON.parse(l) as T);
+    return this.file.lines().map(l => JSON.parse(l) as T);
   }
 }
 
@@ -234,7 +270,7 @@ export class FileTypeCsv<Row extends object> extends FileType {
       }
     }
     const headers = Array.from(headerSet);
-    const outRows = rows.map((row) => headers.map((key) => row[key]));
+    const outRows = rows.map(row => headers.map(key => row[key]));
     return finished(writeToStream(this.file.writeStream, [headers, ...outRows]));
   }
 
@@ -261,7 +297,7 @@ export class FileTypeCsv<Row extends object> extends FileType {
             ),
           );
         })
-        .on('error', (e) => reject(e))
+        .on('error', e => reject(e))
         .on('end', () => resolve(parsed));
     });
   }
