@@ -129,7 +129,7 @@ export class FileType {
 
 /**
  * A .json file that maintains data type when reading/writing.
- * This is unsafe! Type is not checked at runtime, avoid using on files manipulated outside of your application.
+ * > ⚠️ This is mildly unsafe, important/foreign json files should be validated at runtime!
  */
 export class FileTypeJson<T> extends FileType {
   constructor(filepath: string, contents?: T) {

@@ -1,9 +1,12 @@
 import { describe, it } from 'node:test';
 import assert from 'node:assert';
+import path from 'node:path';
 import { Dir, TempDir, temp } from './Dir.ts';
 
 describe('Dir', () => {
   const testDir = temp.dir('dir-test');
+
+  console.log(path.join('/dir1', '/dir2', 'dir3'));
 
   it('Sanitizes filenames', () => {
     const name = testDir.sanitize(':/something/else.json');
@@ -23,13 +26,9 @@ describe('Dir', () => {
     assert(sub instanceof TempDir);
   });
 
-  it('.dir() and .tempDir() throw on absolute path input', () => {
-    assert.throws(() => {
-      testDir.dir(testDir.path);
-    });
-    assert.throws(() => {
-      testDir.tempDir(testDir.path);
-    });
+  it('.dir() and .tempDir() make relative paths', () => {
+    assert(testDir.dir('/').path.includes(testDir.path));
+    assert(testDir.tempDir('/').path.includes(testDir.path));
   });
 
   it('Resolves filenames in folder', () => {

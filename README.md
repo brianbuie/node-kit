@@ -66,16 +66,15 @@ Links: [API](#api), [Classes](#classes), [Functions](#functions), [Types](#types
 ## Class: Dir
 
 Reference to a specific directory with methods to create and list files.
-Default path: './'
+Default path: '.'
 > Created on file system the first time .path is read or any methods are used
 
 ```ts
 export class Dir {
     #inputPath;
     #resolved?: string;
-    constructor(inputPath = "./") 
+    constructor(inputPath = ".") 
     get path() 
-    notAbsolute(subPath: string) 
     dir(subPath: string) 
     tempDir(subPath: string) 
     sanitize(filename: string) 
@@ -92,7 +91,7 @@ export class Dir {
 ### Constructor
 
 ```ts
-constructor(inputPath = "./") 
+constructor(inputPath = ".") 
 ```
 
 Argument Details
@@ -111,15 +110,15 @@ dir(subPath: string)
 Argument Details
 
 + **subPath**
-  + relative path to create (not absolute)
+  + joined with parent Dir's path to make new Dir
 
 Example
 
 ```ts
 const folder = new Dir('example');
-// folder.path = '/absolute/path/to/example'
+// folder.path = '/path/to/cwd/example'
 const child = folder.dir('path/to/dir');
-// child.path = '/absolute/path/to/example/path/to/dir'
+// child.path = '/path/to/cwd/example/path/to/dir'
 ```
 
 ### Method filepath
@@ -152,7 +151,7 @@ tempDir(subPath: string)
 Argument Details
 
 + **subPath**
-  + relative path to create (not absolute)
+  + joined with parent Dir's path to make new TempDir
 
 </details>
 
@@ -357,7 +356,7 @@ Links: [API](#api), [Classes](#classes), [Functions](#functions), [Types](#types
 ## Class: FileTypeJson
 
 A .json file that maintains data type when reading/writing.
-This is unsafe! Type is not checked at runtime, avoid using on files manipulated outside of your application.
+> ⚠️ This is mildly unsafe, important/foreign json files should be validated at runtime!
 
 ```ts
 export class FileTypeJson<T> extends FileType {

@@ -5,7 +5,7 @@ import { File } from './File.ts';
 
 /**
  * Reference to a specific directory with methods to create and list files.
- * Default path: './'
+ * Default path: '.'
  * > Created on file system the first time .path is read or any methods are used
  */
 export class Dir {
@@ -15,8 +15,8 @@ export class Dir {
   /**
    * @param path can be relative to workspace or absolute
    */
-  constructor(inputPath = './') {
-    this.#inputPath = path.resolve(inputPath);
+  constructor(inputPath = '.') {
+    this.#inputPath = inputPath;
   }
 
   /**
@@ -30,30 +30,25 @@ export class Dir {
     return this.#resolved;
   }
 
-  notAbsolute(subPath: string) {
-    if (path.isAbsolute(subPath)) throw new Error(`Absolute path provided: "${subPath}"`);
-    return subPath;
-  }
-
   /**
    * Create a new Dir inside the current Dir
-   * @param subPath relative path to create (not absolute)
+   * @param subPath joined with parent Dir's path to make new Dir
    * @example
    * const folder = new Dir('example');
-   * // folder.path = '/absolute/path/to/example'
+   * // folder.path = '/path/to/cwd/example'
    * const child = folder.dir('path/to/dir');
-   * // child.path = '/absolute/path/to/example/path/to/dir'
+   * // child.path = '/path/to/cwd/example/path/to/dir'
    */
   dir(subPath: string) {
-    return new Dir(path.resolve(this.path, this.notAbsolute(subPath)));
+    return new Dir(path.join(this.path, subPath));
   }
 
   /**
    * Creates a new TempDir inside current Dir
-   * @param subPath relative path to create (not absolute)
+   * @param subPath joined with parent Dir's path to make new TempDir
    */
   tempDir(subPath: string) {
-    return new TempDir(path.resolve(this.path, this.notAbsolute(subPath)));
+    return new TempDir(path.join(this.path, subPath));
   }
 
   sanitize(filename: string) {
