@@ -476,7 +476,6 @@ static error(...input: unknown[])
 ### Method prepare
 
 Handle first argument being a string or an object with a 'message' prop
-Also snapshots special objects (eg Error, Response) to keep props in later JSON.stringify output
 
 ```ts
 static prepare(...input: unknown[]): {
@@ -492,15 +491,31 @@ Links: [API](#api), [Classes](#classes), [Functions](#functions), [Types](#types
 ---
 ## Class: TempDir
 
-Extends Dir class with method to `clear()` contents
+Extends Dir class with method to `clear()` contents.
+Default path: `./.${Date.now()}`
 
 ```ts
 export class TempDir extends Dir {
+    constructor(inputPath = `./.${Date.now()}`) 
     clear() 
 }
 ```
 
 See also: [Dir](#class-dir)
+
+<details>
+
+<summary>Class TempDir Details</summary>
+
+### Method clear
+
+> ⚠️ Warning! This deletes the directory, make sure it's not
+
+```ts
+clear() 
+```
+
+</details>
 
 Links: [API](#api), [Classes](#classes), [Functions](#functions), [Types](#types)
 

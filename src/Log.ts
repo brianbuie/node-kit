@@ -25,9 +25,9 @@ export class Log {
    */
   static #toGcloud(entry: Entry) {
     if (entry.details?.length === 1) {
-      console.log(JSON.stringify({ ...entry, details: entry.details[0] }));
+      console.log(JSON.stringify(snapshot({ ...entry, details: entry.details[0] })));
     } else {
-      console.log(JSON.stringify(entry));
+      console.log(JSON.stringify(snapshot(entry)));
     }
   }
 
@@ -58,11 +58,12 @@ export class Log {
 
   /**
    * Handle first argument being a string or an object with a 'message' prop
-   * Also snapshots special objects (eg Error, Response) to keep props in later JSON.stringify output
    */
   static prepare(...input: unknown[]): { message?: string; details: unknown[] } {
-    let [first, ...rest] = input.map((i) => snapshot(i));
-    if (typeof first === 'string') return { message: first, details: rest };
+    let [first, ...rest] = input;
+    if (typeof first === 'string') {
+      return { message: first, details: rest };
+    }
     // @ts-ignore
     if (isObjectLike(first) && typeof first['message'] === 'string') {
       const { message, ...firstDetails } = first as { message: string };
