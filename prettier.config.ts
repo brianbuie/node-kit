@@ -1,8 +1,6 @@
-const config = {
+export default {
   printWidth: 120,
   singleQuote: true,
   quoteProps: 'consistent',
   arrowParens: 'avoid',
 };
-
-export default config;
