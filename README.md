@@ -514,9 +514,10 @@ Helpers for formatting dates, times, and numbers as strings
 
 ```ts
 export class Format {
-    static date(formatStr: "iso" | "ymd" | string = "iso", d: DateArg<Date> = new Date()) 
+    static date(formatStr: "iso" | "ymd" | "ymd-hm" | "ymd-hms" | "h:m:s" | string = "iso", d: DateArg<Date> = new Date()) 
     static round(n: number, places = 0) 
-    static ms(ms: number) 
+    static plural(amount: number, singular: string, multiple?: string) 
+    static ms(ms: number, style?: "digital") 
     static bytes(b: number) 
 }
 ```
@@ -530,21 +531,40 @@ export class Format {
 date-fns format() with some shortcuts
 
 ```ts
-static date(formatStr: "iso" | "ymd" | string = "iso", d: DateArg<Date> = new Date()) 
+static date(formatStr: "iso" | "ymd" | "ymd-hm" | "ymd-hms" | "h:m:s" | string = "iso", d: DateArg<Date> = new Date()) 
 ```
 
 Argument Details
 
 + **formatStr**
-  + 'iso' to get ISO date, 'ymd' to format as 'yyyy-MM-dd', full options: https://date-fns.org/v4.1.0/docs/format
+  + the format to use
++ **date**
+  + the date to format, default `new Date()`
+
+Example
+
+```ts
+Format.date('iso') // '2026-04-08T13:56:45Z'
+Format.date('ymd') // '20260408'
+Format.date('ymd-hm') // '20260408-1356'
+Format.date('ymd-hms') // '20260408-135645'
+Format.date('h:m:s') // '13:56:45'
+```
 
 ### Method ms
 
 Make millisecond durations actually readable (eg "123ms", "3.56s", "1m 34s", "3h 24m", "2d 4h")
 
 ```ts
-static ms(ms: number) 
+static ms(ms: number, style?: "digital") 
 ```
+
+Argument Details
+
++ **ms**
+  + milliseconds
++ **style**
+  + 'digital' to output as 'HH:MM:SS'
 
 ### Method round
 
@@ -563,10 +583,10 @@ Links: [API](#api), [Classes](#classes), [Functions](#functions), [Types](#types
 
 ```ts
 export class Log {
-    static isTest = process.env.npm_package_name === "@brianbuie/node-kit" && process.env.npm_lifecycle_event === "test";
+    static getStack() 
     static #toGcloud(entry: Entry) 
     static #toConsole(entry: Entry, color: ChalkInstance) 
-    static #log(options: Options, ...input: unknown[]) 
+    static #log({ severity, color }: Options, ...input: unknown[]) 
     static prepare(...input: unknown[]): {
         message?: string;
         details: unknown[];
@@ -771,13 +791,33 @@ Links: [API](#api), [Classes](#classes), [Functions](#functions), [Types](#types
 ---
 # Variables
 
+| |
+| --- |
+| [cwd](#variable-cwd) |
+| [temp](#variable-temp) |
+
+Links: [API](#api), [Classes](#classes), [Functions](#functions), [Types](#types), [Variables](#variables)
+
+---
+
+## Variable: cwd
+
+```ts
+cwd = new Dir("./")
+```
+
+See also: [Dir](#class-dir)
+
+Links: [API](#api), [Classes](#classes), [Functions](#functions), [Types](#types), [Variables](#variables)
+
+---
 ## Variable: temp
 
 ```ts
-temp = new TempDir()
+temp = cwd.tempDir(".temp")
 ```
 
-See also: [TempDir](#class-tempdir)
+See also: [cwd](#variable-cwd)
 
 Links: [API](#api), [Classes](#classes), [Functions](#functions), [Types](#types), [Variables](#variables)
 
