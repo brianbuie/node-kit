@@ -72,7 +72,7 @@ export class Dir {
   }
 
   get files() {
-    return fs.readdirSync(this.path).map((filename) => this.file(filename));
+    return fs.readdirSync(this.path).map(filename => this.file(filename));
   }
 }
 
@@ -95,6 +95,10 @@ export class TempDir extends Dir {
 }
 
 /**
- * './.temp' in current working directory
+ * Current working directory
  */
-export const temp = new TempDir();
+export const cwd = new Dir('./');
+/**
+ * ./.temp in current working directory
+ */
+export const temp = cwd.tempDir('.temp');
