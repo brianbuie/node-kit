@@ -25,7 +25,7 @@ export class TypeWriter {
   }
 
   async addMember(name: string, _samples: any[]) {
-    const samples = _samples.map((s) => (typeof s === 'string' ? s : JSON.stringify(s)));
+    const samples = _samples.map(s => (typeof s === 'string' ? s : JSON.stringify(s)));
     await this.input.addSource({ name, samples });
   }
 

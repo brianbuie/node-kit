@@ -1,13 +1,13 @@
 import { isObjectLike } from 'lodash-es';
 
 /**
- * Allows special objects (Error, Headers, Set) to be included in JSON.stringify output
- * functions are removed
+ * Allows special objects (Error, Headers, Set) to be included in JSON.stringify output.
+ * Functions are removed
  */
 export function snapshot(i: unknown, max = 50, depth = 0): any {
   if (Array.isArray(i)) {
     if (depth === max) return [];
-    return i.map((c) => snapshot(c, max, depth + 1));
+    return i.map(c => snapshot(c, max, depth + 1));
   }
   if (typeof i === 'function') return undefined;
   if (!isObjectLike(i)) return i;
@@ -32,7 +32,7 @@ export function snapshot(i: unknown, max = 50, depth = 0): any {
   }
 
   // Get Non-enumberable, own properties
-  Object.getOwnPropertyNames(obj).forEach((key) => {
+  Object.getOwnPropertyNames(obj).forEach(key => {
     output[key] = snapshot(obj[key], max, depth + 1);
   });
 

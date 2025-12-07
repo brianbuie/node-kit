@@ -17,7 +17,7 @@ const thing = {
 describe('File', () => {
   it('Handles request body as stream input', async () => {
     const img = testDir.file('image.jpg');
-    await fetch('https://testingbot.com/free-online-tools/random-avatar/300').then((res) => {
+    await fetch('https://testingbot.com/free-online-tools/random-avatar/300').then(res => {
       if (!res.body) throw new Error('No response body');
       return img.write(res.body);
     });
@@ -74,7 +74,7 @@ describe('FileTypeNdjson', () => {
     assert(file.lines().length === 2);
     file.append(thing);
     assert(file.lines().length === 3);
-    file.lines().forEach((line) => {
+    file.lines().forEach(line => {
       assert.deepStrictEqual(line, thing);
     });
   });
@@ -93,7 +93,7 @@ describe('FileTypeCsv', () => {
     const things = [thing, thing, thing];
     const file = await testDir.file('csv-data').csv(things);
     const parsed = await file.read();
-    parsed.forEach((row) => {
+    parsed.forEach(row => {
       assert.deepEqual(row, thing);
     });
   });

@@ -63,7 +63,6 @@ Links: [API](#api), [Classes](#classes), [Functions](#functions), [Types](#types
 | [FileTypeNdjson](#class-filetypendjson) |
 | [Format](#class-format) |
 | [Log](#class-log) |
-| [TempDir](#class-tempdir) |
 | [TypeWriter](#class-typewriter) |
 
 Links: [API](#api), [Classes](#classes), [Functions](#functions), [Types](#types), [Variables](#variables)
@@ -95,23 +94,25 @@ Links: [API](#api), [Classes](#classes), [Functions](#functions), [Types](#types
 ## Class: Dir
 
 Reference to a specific directory with methods to create and list files.
-Default path: '.'
-> Created on file system the first time .path is read or any methods are used
 
 ```ts
 export class Dir {
     #inputPath;
     #resolved?: string;
-    constructor(inputPath = ".") 
+    isTemp;
+    constructor(inputPath: string, options: DirOptions = {}) 
     get path() 
-    dir(subPath: string) 
+    dir(subPath: string, options: DirOptions = {}) 
     tempDir(subPath: string) 
     sanitize(filename: string) 
     filepath(base: string) 
     file(base: string) 
     get files() 
+    clear() 
 }
 ```
+
+See also: [DirOptions](#type-diroptions)
 
 <details>
 
@@ -120,8 +121,9 @@ export class Dir {
 ### Constructor
 
 ```ts
-constructor(inputPath = ".") 
+constructor(inputPath: string, options: DirOptions = {}) 
 ```
+See also: [DirOptions](#type-diroptions)
 
 Argument Details
 
@@ -133,13 +135,16 @@ Argument Details
 Create a new Dir inside the current Dir
 
 ```ts
-dir(subPath: string) 
+dir(subPath: string, options: DirOptions = {}) 
 ```
+See also: [DirOptions](#type-diroptions)
 
 Argument Details
 
 + **subPath**
   + joined with parent Dir's path to make new Dir
++ **options**
+  + include `{ temp: true }` to enable the `.clear()` method
 
 Example
 
@@ -171,7 +176,7 @@ const filepath = folder.resolve('file.json');
 
 ### Method tempDir
 
-Creates a new TempDir inside current Dir
+Creates a new temp directory inside current Dir
 
 ```ts
 tempDir(subPath: string) 
@@ -591,6 +596,7 @@ export class Log {
         message?: string;
         details: unknown[];
     } 
+    static alert(...input: unknown[]) 
     static error(...input: unknown[]) 
     static warn(...input: unknown[]) 
     static notice(...input: unknown[]) 
@@ -619,12 +625,44 @@ Includes colors and better inspection for logging during dev
 static #toConsole(entry: Entry, color: ChalkInstance) 
 ```
 
+### Method alert
+
+Events that require action or attention immediately
+
+```ts
+static alert(...input: unknown[]) 
+```
+
+### Method debug
+
+Debug or trace information
+
+```ts
+static debug(...input: unknown[]) 
+```
+
 ### Method error
 
-Logs error details before throwing
+Events that cause problems
 
 ```ts
 static error(...input: unknown[]) 
+```
+
+### Method info
+
+Routine information, such as ongoing status or performance
+
+```ts
+static info(...input: unknown[]) 
+```
+
+### Method notice
+
+Normal but significant events, such as start up, shut down, or a configuration change
+
+```ts
+static notice(...input: unknown[]) 
 ```
 
 ### Method prepare
@@ -638,35 +676,12 @@ static prepare(...input: unknown[]): {
 } 
 ```
 
-</details>
+### Method warn
 
-Links: [API](#api), [Classes](#classes), [Functions](#functions), [Types](#types), [Variables](#variables)
-
----
-## Class: TempDir
-
-Extends Dir class with method to `clear()` contents.
-Default path: `./.temp`
+Events that might cause problems
 
 ```ts
-export class TempDir extends Dir {
-    constructor(inputPath = `./.temp`) 
-    clear() 
-}
-```
-
-See also: [Dir](#class-dir), [temp](#variable-temp)
-
-<details>
-
-<summary>Class TempDir Details</summary>
-
-### Method clear
-
-> ⚠️ Warning! This deletes the directory!
-
-```ts
-clear() 
+static warn(...input: unknown[]) 
 ```
 
 </details>
@@ -721,8 +736,8 @@ Links: [API](#api), [Classes](#classes), [Functions](#functions), [Types](#types
 
 ## Function: snapshot
 
-Allows special objects (Error, Headers, Set) to be included in JSON.stringify output
-functions are removed
+Allows special objects (Error, Headers, Set) to be included in JSON.stringify output.
+Functions are removed
 
 ```ts
 export function snapshot(i: unknown, max = 50, depth = 0): any 
@@ -744,6 +759,7 @@ Links: [API](#api), [Classes](#classes), [Functions](#functions), [Types](#types
 
 | |
 | --- |
+| [DirOptions](#type-diroptions) |
 | [FetchOptions](#type-fetchoptions) |
 | [Query](#type-query) |
 | [Route](#type-route) |
@@ -752,6 +768,19 @@ Links: [API](#api), [Classes](#classes), [Functions](#functions), [Types](#types
 
 ---
 
+## Type: DirOptions
+
+```ts
+export type DirOptions = {
+    temp?: boolean;
+}
+```
+
+See also: [temp](#variable-temp)
+
+Links: [API](#api), [Classes](#classes), [Functions](#functions), [Types](#types), [Variables](#variables)
+
+---
 ## Type: FetchOptions
 
 ```ts

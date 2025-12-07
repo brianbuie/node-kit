@@ -43,7 +43,7 @@ export class Fetcher {
     Object.entries(mergedOptions.query || {}).forEach(([key, val]) => {
       if (val === undefined) return;
       if (Array.isArray(val)) {
-        val.forEach((v) => {
+        val.forEach(v => {
           params.push([key, `${v}`]);
         });
       } else {
@@ -98,15 +98,15 @@ export class Fetcher {
       attempt++;
       const [req] = this.buildRequest(route, opts);
       const res = await fetch(req)
-        .then((r) => {
+        .then(r => {
           if (!r.ok) throw new Error(r.statusText);
           return r;
         })
-        .catch(async (error) => {
+        .catch(async error => {
           if (attempt < maxAttempts) {
             const wait = attempt * 3000;
             console.warn(`${req.method} ${req.url} (attempt ${attempt} of ${maxAttempts})`, error);
-            await new Promise((resolve) => setTimeout(resolve, wait));
+            await new Promise(resolve => setTimeout(resolve, wait));
           } else {
             throw new Error(error);
           }
