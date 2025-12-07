@@ -4,6 +4,7 @@ import chalk, { type ChalkInstance } from 'chalk';
 import { snapshot } from './snapshot.ts';
 import { Format } from './Format.ts';
 
+// https://docs.cloud.google.com/logging/docs/reference/v2/rest/v2/LogEntry#logseverity
 type Severity = 'DEFAULT' | 'DEBUG' | 'INFO' | 'NOTICE' | 'WARNING' | 'ERROR' | 'CRITICAL' | 'ALERT' | 'EMERGENCY';
 
 type Options = {
@@ -82,25 +83,43 @@ export class Log {
   }
 
   /**
-   * Logs error details before throwing
+   * Events that require action or attention immediately
    */
-  static error(...input: unknown[]) {
-    const { message } = this.#log({ severity: 'ERROR', color: chalk.red }, ...input);
-    throw new Error(message);
+  static alert(...input: unknown[]) {
+    return this.#log({ severity: 'ALERT', color: chalk.bgRed }, ...input);
   }
 
+  /**
+   * Events that cause problems
+   */
+  static error(...input: unknown[]) {
+    return this.#log({ severity: 'ERROR', color: chalk.red }, ...input);
+  }
+
+  /**
+   * Events that might cause problems
+   */
   static warn(...input: unknown[]) {
     return this.#log({ severity: 'WARNING', color: chalk.yellow }, ...input);
   }
 
+  /**
+   * Normal but significant events, such as start up, shut down, or a configuration change
+   */
   static notice(...input: unknown[]) {
     return this.#log({ severity: 'NOTICE', color: chalk.cyan }, ...input);
   }
 
+  /**
+   * Routine information, such as ongoing status or performance
+   */
   static info(...input: unknown[]) {
     return this.#log({ severity: 'INFO', color: chalk.white }, ...input);
   }
 
+  /**
+   * Debug or trace information
+   */
   static debug(...input: unknown[]) {
     return this.#log({ severity: 'DEBUG', color: chalk.gray }, ...input);
   }
