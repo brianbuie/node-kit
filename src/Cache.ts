@@ -1,5 +1,5 @@
 import { type Duration, isAfter, add } from 'date-fns';
-import { TempDir } from './Dir.ts';
+import { Dir } from './Dir.ts';
 
 /**
  * Save data to a local file with an expiration.
@@ -11,7 +11,7 @@ export class Cache<T> {
   ttl;
 
   constructor(key: string, ttl: number | Duration, initialData?: T) {
-    const dir = new TempDir('.cache');
+    const dir = new Dir('.cache', { temp: true });
     this.file = dir.file(key).json<{ savedAt: string; data: T }>();
     this.ttl = typeof ttl === 'number' ? { minutes: ttl } : ttl;
     if (initialData) this.write(initialData);

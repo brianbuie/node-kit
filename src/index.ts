@@ -1,4 +1,4 @@
-export { Dir, TempDir, temp } from './Dir.ts';
+export { Dir, type DirOptions, temp, cwd } from './Dir.ts';
 export { Cache } from './Cache.ts';
 export { Fetcher, type Route, type Query, type FetchOptions } from './Fetcher.ts';
 export { File, FileType, FileTypeJson, FileTypeNdjson, FileTypeCsv } from './File.ts';

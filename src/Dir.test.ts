@@ -1,12 +1,9 @@
 import { describe, it } from 'node:test';
 import assert from 'node:assert';
-import path from 'node:path';
-import { Dir, TempDir, temp } from './Dir.ts';
+import { temp, Dir, type DirOptions } from './Dir.ts';
 
 describe('Dir', () => {
   const testDir = temp.dir('dir-test');
-
-  console.log(path.join('/dir1', '/dir2', 'dir3'));
 
   it('Sanitizes filenames', () => {
     const name = testDir.sanitize(':/something/else.json');
@@ -21,19 +18,32 @@ describe('Dir', () => {
     assert(sub.path.includes(subPath));
   });
 
-  it('.tempDir returns instance of TempDir', () => {
+  it('.tempDir returns temporary directory', () => {
     const sub = testDir.tempDir('example');
-    assert(sub instanceof TempDir);
+    assert(sub.isTemp);
   });
 
-  it('.dir() and .tempDir() make relative paths', () => {
+  it('.dir() makes relative paths', () => {
     assert(testDir.dir('/').path.includes(testDir.path));
-    assert(testDir.tempDir('/').path.includes(testDir.path));
   });
 
   it('Resolves filenames in folder', () => {
     const txt = testDir.filepath('test.txt');
     assert(txt.includes(testDir.path));
     assert(txt.includes('test.txt'));
+  });
+
+  it('is extendable and chains methods correctly', () => {
+    const testRoot = testDir.tempDir('extendable').path;
+    class Example extends Dir {
+      dir(subPath: string, options: DirOptions = {}) {
+        return new Example(subPath, options);
+      }
+    }
+    const test = new Example(testRoot);
+    const child = test.dir('child');
+    assert(child instanceof Example);
+    const childTemp = child.tempDir('temp-child');
+    assert(childTemp instanceof Example);
   });
 });
