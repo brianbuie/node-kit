@@ -102,7 +102,7 @@ export class Dir {
     isTemp;
     constructor(inputPath: string, options: DirOptions = {}) 
     get path() 
-    dir(subPath: string, options: DirOptions = {}) 
+    dir(subPath: string, options: DirOptions = { temp: this.isTemp }) 
     tempDir(subPath: string) 
     sanitize(filename: string) 
     filepath(base: string) 
@@ -112,7 +112,7 @@ export class Dir {
 }
 ```
 
-See also: [DirOptions](#type-diroptions)
+See also: [DirOptions](#type-diroptions), [temp](#variable-temp)
 
 <details>
 
@@ -135,16 +135,16 @@ Argument Details
 Create a new Dir inside the current Dir
 
 ```ts
-dir(subPath: string, options: DirOptions = {}) 
+dir(subPath: string, options: DirOptions = { temp: this.isTemp }) 
 ```
-See also: [DirOptions](#type-diroptions)
+See also: [DirOptions](#type-diroptions), [temp](#variable-temp)
 
 Argument Details
 
 + **subPath**
   + joined with parent Dir's path to make new Dir
 + **options**
-  + include `{ temp: true }` to enable the `.clear()` method
+  + include `{ temp: true }` to enable the `.clear()` method. If current Dir is temporary, child directories will also be temporary.
 
 Example
 
