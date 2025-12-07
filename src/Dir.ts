@@ -43,15 +43,15 @@ export class Dir {
    * @param subPath
    * joined with parent Dir's path to make new Dir
    * @param options
-   * include `{ temp: true }` to enable the `.clear()` method
+   * include `{ temp: true }` to enable the `.clear()` method. If current Dir is temporary, child directories will also be temporary.
    * @example
    * const folder = new Dir('example');
    * // folder.path = '/path/to/cwd/example'
    * const child = folder.dir('path/to/dir');
    * // child.path = '/path/to/cwd/example/path/to/dir'
    */
-  dir(subPath: string, options: DirOptions = {}) {
-    return new Dir(path.join(this.path, subPath), options);
+  dir(subPath: string, options: DirOptions = { temp: this.isTemp }) {
+    return new (this.constructor as typeof Dir)(path.join(this.path, subPath), options) as this;
   }
 
   /**

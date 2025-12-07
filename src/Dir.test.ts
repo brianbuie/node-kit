@@ -27,6 +27,12 @@ describe('Dir', () => {
     assert(testDir.dir('/').path.includes(testDir.path));
   });
 
+  it('.isTemp flows down to child Dirs', () => {
+    const base = testDir.tempDir('temp-by-default');
+    const child = base.dir('child');
+    assert(child.isTemp);
+  });
+
   it('Resolves filenames in folder', () => {
     const txt = testDir.filepath('test.txt');
     assert(txt.includes(testDir.path));
@@ -34,16 +40,20 @@ describe('Dir', () => {
   });
 
   it('is extendable and chains methods correctly', () => {
-    const testRoot = testDir.tempDir('extendable').path;
     class Example extends Dir {
-      dir(subPath: string, options: DirOptions = {}) {
-        return new Example(subPath, options);
+      get jsonFiles() {
+        return this.files.filter(f => f.ext === '.json');
       }
     }
-    const test = new Example(testRoot);
+    const testRoot = testDir.tempDir('extendable');
+    const test = new Example(testRoot.path);
     const child = test.dir('child');
     assert(child instanceof Example);
+    child.file('child.json').json({});
+    assert(child.jsonFiles.length === 1);
     const childTemp = child.tempDir('temp-child');
     assert(childTemp instanceof Example);
+    childTemp.file('child-temp').json({});
+    assert(childTemp.jsonFiles.length === 1);
   });
 });
