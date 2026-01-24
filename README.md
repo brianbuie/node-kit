@@ -1,16 +1,16 @@
-[![NPM Version](https://img.shields.io/npm/v/%40brianbuie%2Fnode-kit)](https://www.npmjs.com/package/@brianbuie/node-kit)
-
 # Node Kit
 
-Basic tools for Node.js projects
+Basic tools for quick node.js projects
 
 # Installing
+
+[![NPM Version](https://img.shields.io/npm/v/%40brianbuie%2Fnode-kit)](https://www.npmjs.com/package/@brianbuie/node-kit)
 
 ```
 npm add @brianbuie/node-kit
 ```
 
-```js
+```ts
 import { Fetcher, Log } from '@brianbuie/node-kit';
 ```
 
@@ -24,16 +24,16 @@ import { Fetcher, Log } from '@brianbuie/node-kit';
 }
 ```
 
-### prettier.config.ts
+### prettier.config.js
 
-```ts
-export * from './node_modules/@brianbuie/node-kit/prettier.config.ts';
+```js
+export * from './node_modules/@brianbuie/node-kit/prettier.config.js';
 ```
 
 Or make changes:
 
-```ts
-import baseConfig from './node_modules/@brianbuie/node-kit/prettier.config.ts';
+```js
+import baseConfig from './node_modules/@brianbuie/node-kit/prettier.config.js';
 
 const config = {
   ...baseConfig,
@@ -101,18 +101,28 @@ export class Dir {
     #resolved?: string;
     isTemp;
     constructor(inputPath: string, options: DirOptions = {}) 
+    get pathUnsafe() 
     get path() 
+    get name() 
     dir(subPath: string, options: DirOptions = { temp: this.isTemp }) 
     tempDir(subPath: string) 
     sanitize(filename: string) 
     filepath(base: string) 
     file(base: string) 
+    get contents(): (Dir | File)[] 
+    get dirs() 
     get files() 
+    get videos() 
+    get images() 
+    get jsonFiles() 
+    get ndjsonFiles() 
+    get csvFiles() 
+    get textFiles() 
     clear() 
 }
 ```
 
-See also: [DirOptions](#type-diroptions), [temp](#variable-temp)
+See also: [DirOptions](#type-diroptions), [File](#class-file), [temp](#variable-temp)
 
 <details>
 
@@ -129,6 +139,14 @@ Argument Details
 
 + **path**
   + can be relative to workspace or absolute
+
+### Method clear
+
+Deletes the contents of the directory. Only allowed if created with `temp` option set to `true` (or created with `dir.tempDir` method).
+
+```ts
+clear() 
+```
 
 ### Method dir
 
@@ -153,6 +171,14 @@ const folder = new Dir('example');
 // folder.path = '/path/to/cwd/example'
 const child = folder.dir('path/to/dir');
 // child.path = '/path/to/cwd/example/path/to/dir'
+```
+
+### Method file
+
+Create a new file in this directory
+
+```ts
+file(base: string) 
 ```
 
 ### Method filepath
@@ -853,3 +879,28 @@ Links: [API](#api), [Classes](#classes), [Functions](#functions), [Types](#types
 ---
 
 <!--#endregion ts2md-api-merged-here-->
+
+# Development
+
+Typecheck and run all tests from `*.test.ts` files
+
+```
+pnpm test
+```
+
+Format with Prettier, generate API docs for this Readme
+
+```
+pnpm build
+```
+
+Release a new version
+
+- runs test and build
+- If no unstaged changes, creates a new commit with version tag (`preversion` script in package.json)
+- Pushes to github (`postversion` script in package.json)
+- Triggers github workflow that publishes to npm
+
+```
+npm version [patch|minor|major]
+```

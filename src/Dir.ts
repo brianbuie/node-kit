@@ -28,14 +28,33 @@ export class Dir {
   }
 
   /**
+   * The path of the directory, which might not exist yet.
+   */
+  get pathUnsafe() {
+    return this.#resolved || path.resolve(this.#inputPath);
+  }
+
+  /**
    * The path of this Dir instance. Created on file system the first time this property is read/used.
+   * Safe to use the directory immediately, without calling mkdir separately.
    */
   get path() {
+    // avoids calling mkdir every time path is read
     if (!this.#resolved) {
-      this.#resolved = path.resolve(this.#inputPath);
+      this.#resolved = this.pathUnsafe;
       fs.mkdirSync(this.#resolved, { recursive: true });
     }
     return this.#resolved;
+  }
+
+  /**
+   * The last segment in the path. Doesn't read this.path, to avoid creating directory on file system before it's needed.
+   * @example
+   * const example = new Dir('/path/to/folder');
+   * console.log(example.name); // "folder"
+   */
+  get name() {
+    return this.pathUnsafe.split(path.sep).at(-1)!;
   }
 
   /**
@@ -78,14 +97,93 @@ export class Dir {
     return path.resolve(this.path, this.sanitize(base));
   }
 
+  /**
+   * Create a new file in this directory
+   */
   file(base: string) {
     return new File(this.filepath(base));
   }
 
-  get files() {
-    return fs.readdirSync(this.path).map(filename => this.file(filename));
+  /**
+   * All files and subdirectories in in this directory, returned as Dir and File instances
+   */
+  get contents(): (Dir | File)[] {
+    return fs
+      .readdirSync(this.path)
+      .map(name => (fs.statSync(path.join(this.path, name)).isDirectory() ? this.dir(name) : this.file(name)));
   }
 
+  /**
+   * All subdirectories in this directory
+   */
+  get dirs() {
+    return this.contents.filter(f => f instanceof Dir);
+  }
+
+  /**
+   * All files in this directory
+   */
+  get files() {
+    return this.contents.filter(f => f instanceof File);
+  }
+
+  /**
+   * All files with MIME type that includes "video"
+   */
+  get videos() {
+    return this.files.filter(f => f.type?.includes('video'));
+  }
+
+  /**
+   * All files with MIME type that includes "image"
+   */
+  get images() {
+    return this.files.filter(f => f.type?.includes('image'));
+  }
+
+  /**
+   * All files with ext ".json"
+   * @example
+   * // Directory of json files with the same shape
+   * const dataFiles = dataDir.jsonFiles.map(f => f.json<ExampleType>());
+   * // dataFiles: FileTypeJson<ExampleType>[]
+   */
+  get jsonFiles() {
+    return this.files.filter(f => f.ext === '.json');
+  }
+
+  /**
+   * All files with ext ".ndjson"
+   * @example
+   * // Directory of ndjson files with the same shape
+   * const dataFiles = dataDir.ndjsonFiles.map(f => f.ndjson<ExampleType>());
+   * // dataFiles: FileTypeNdjson<ExampleType>[]
+   */
+  get ndjsonFiles() {
+    return this.files.filter(f => f.ext === '.ndjson');
+  }
+
+  /**
+   * All files with ext ".csv"
+   * @example
+   * // Directory of csv files with the same shape
+   * const dataFiles = dataDir.csvFile.map(f => f.csv<ExampleType>());
+   * // dataFiles: FileTypeCsv<ExampleType>[]
+   */
+  get csvFiles() {
+    return this.files.filter(f => f.ext === '.csv');
+  }
+
+  /**
+   * All files with ext ".txt"
+   */
+  get textFiles() {
+    return this.files.filter(f => f.ext === '.txt');
+  }
+
+  /**
+   * Deletes the contents of the directory. Only allowed if created with `temp` option set to `true` (or created with `dir.tempDir` method).
+   */
   clear() {
     if (!this.isTemp) throw new Error('Dir is not temporary');
     fs.rmSync(this.path, { recursive: true, force: true });

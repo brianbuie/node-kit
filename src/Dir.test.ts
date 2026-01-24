@@ -4,6 +4,7 @@ import { temp, Dir, type DirOptions } from './Dir.ts';
 
 describe('Dir', () => {
   const testDir = temp.dir('dir-test');
+  testDir.clear();
 
   it('Sanitizes filenames', () => {
     const name = testDir.sanitize(':/something/else.json');
@@ -16,6 +17,7 @@ describe('Dir', () => {
     const sub = testDir.dir(subPath);
     assert(sub.path.includes(testDir.path));
     assert(sub.path.includes(subPath));
+    assert(testDir.dirs.length > 0);
   });
 
   it('.tempDir returns temporary directory', () => {
@@ -41,16 +43,18 @@ describe('Dir', () => {
 
   it('is extendable and chains methods correctly', () => {
     class Example extends Dir {
-      get jsonFiles() {
-        return this.files.filter(f => f.ext === '.json');
+      get testFiles() {
+        return this.files.filter(f => f.ext === '.test');
       }
     }
     const testRoot = testDir.tempDir('extendable');
     const test = new Example(testRoot.path);
     const child = test.dir('child');
     assert(child instanceof Example);
-    child.file('child.json').json({});
-    assert(child.jsonFiles.length === 1);
+    const childFile = child.file('child.test');
+    childFile.write('');
+    assert(child.testFiles.map(f => f.path).includes(childFile.path));
+    assert(test.dirs.map(d => d.path).includes(child.path));
     const childTemp = child.tempDir('temp-child');
     assert(childTemp instanceof Example);
     childTemp.file('child-temp').json({});
