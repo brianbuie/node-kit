@@ -37,6 +37,21 @@ describe('Fetcher', () => {
     assert(!url.href.includes('key'));
   });
 
+  it('Merges query parameters', () => {
+    const [url] = statusApi.buildUrl('/?existing=1', { query: { added: 2 } });
+    assert(url.href.includes('existing=1&added=2'));
+  });
+
+  it('Overrides route query parameters when provided as options', () => {
+    const [url] = statusApi.buildUrl('/param=1', { query: { param: 2 } });
+    assert(url.search === '?param=2');
+  });
+
+  it('Allows overriding the base with new options', () => {
+    const [url] = statusApi.buildUrl('/test', { base: 'https://www.google.com' });
+    assert(url.href.includes('google.com'));
+  });
+
   it('Keeps falsey query params', () => {
     const [url] = statusApi.buildUrl('/', { query: { zero: 0, false: false, null: null } });
     assert(url.href.includes('zero=0'));

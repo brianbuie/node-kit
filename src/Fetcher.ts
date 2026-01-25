@@ -35,10 +35,16 @@ export class Fetcher {
 
   /**
    * Build URL with URLSearchParams if query is provided.
-   * Also returns domain, to help with cookies
+   * Also returns domain, to help with cookies.
+   * Query params are merged in this order, last instance of key wins:
+   * 1. defaultOptions.query
+   * 2. route URLSearchParams
+   * 3. options.query
    */
   buildUrl(route: Route, opts: FetchOptions = {}): [URL, string] {
-    const mergedOptions = merge({}, this.defaultOptions, opts);
+    const routeUrl = route instanceof URL ? route : new URL(route, opts.base || this.defaultOptions.base);
+    const routeQuery = Object.fromEntries(routeUrl.searchParams);
+    const mergedOptions = merge({}, this.defaultOptions, { query: routeQuery }, opts);
     const params: [string, string][] = [];
     Object.entries(mergedOptions.query || {}).forEach(([key, val]) => {
       if (val === undefined) return;
@@ -51,7 +57,7 @@ export class Fetcher {
       }
     });
     const search = params.length > 0 ? '?' + new URLSearchParams(params).toString() : '';
-    const url = new URL(route + search, this.defaultOptions.base);
+    const url = new URL(route + search, mergedOptions.base);
     const domain = extractDomain(url.href) as string;
     return [url, domain];
   }

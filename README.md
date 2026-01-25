@@ -287,7 +287,11 @@ See also: [FetchOptions](#type-fetchoptions), [Route](#type-route)
 ### Method buildUrl
 
 Build URL with URLSearchParams if query is provided.
-Also returns domain, to help with cookies
+Also returns domain, to help with cookies.
+Query params are merged in this order, last instance of key wins:
+1. defaultOptions.query
+2. route URLSearchParams
+3. options.query
 
 ```ts
 buildUrl(route: Route, opts: FetchOptions = {}): [
