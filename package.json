@@ -39,7 +39,7 @@
     "extract-domain": "^5.0.2",
     "fast-csv": "^5.0.5",
     "format-duration": "^3.0.2",
-    "lodash-es": "^4.17.21",
+    "lodash-es": "^4.17.23",
     "mime-types": "^3.0.2",
     "quicktype-core": "^23.2.6",
     "sanitize-filename": "^1.6.3"
