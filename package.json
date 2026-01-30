@@ -1,6 +1,6 @@
 {
   "name": "@brianbuie/node-kit",
-  "version": "0.14.1",
+  "version": "0.14.2",
   "license": "Unlicense",
   "description": "Basic tools for quick node.js projects",
   "author": "Brian Buie <brian@buie.dev>",
