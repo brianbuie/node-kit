@@ -334,6 +334,7 @@ export class File {
     ext;
     type;
     constructor(filepath: string) 
+    #resolve(filepath: string) 
     get exists() 
     get stats(): Partial<fs.Stats> 
     delete() 

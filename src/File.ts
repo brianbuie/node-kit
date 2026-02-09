@@ -19,7 +19,7 @@ export class File {
   type;
 
   constructor(filepath: string) {
-    this.path = path.resolve(filepath);
+    this.path = this.#resolve(filepath);
     const { root, dir, base, ext, name } = path.parse(this.path);
     this.root = root;
     this.dir = dir;
@@ -27,6 +27,17 @@ export class File {
     this.name = name;
     this.ext = ext;
     this.type = mime.lookup(ext) || undefined;
+  }
+
+  #resolve(filepath: string) {
+    if (filepath[0] === '~') {
+      if (process.env.HOME) {
+        return path.join(process.env.HOME, filepath.slice(1));
+      } else {
+        console.warn('process.env.HOME does not exist! "~" will not resolve to home directory');
+      }
+    }
+    return path.resolve(filepath);
   }
 
   get exists() {

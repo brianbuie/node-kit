@@ -31,7 +31,15 @@ export class Dir {
    * The path of the directory, which might not exist yet.
    */
   get pathUnsafe() {
-    return this.#resolved || path.resolve(this.#inputPath);
+    if (this.#resolved) return this.#resolved;
+    if (this.#inputPath[0] === '~') {
+      if (process.env.HOME) {
+        return path.join(process.env.HOME, this.#inputPath.slice(1));
+      } else {
+        console.warn('process.env.HOME does not exist! "~" will not resolve to home directory');
+      }
+    }
+    return path.resolve(this.#inputPath);
   }
 
   /**

@@ -20,6 +20,11 @@ describe('Dir', () => {
     assert(testDir.dirs.length > 0);
   });
 
+  it('Handles ~ (home) input', () => {
+    const homeDir = new Dir('~/example');
+    if (process.env.HOME) assert(homeDir.pathUnsafe.includes(process.env.HOME));
+  });
+
   it('.tempDir returns temporary directory', () => {
     const sub = testDir.tempDir('example');
     assert(sub.isTemp);

@@ -64,6 +64,11 @@ describe('FileTypeJson', () => {
     assert(contents === undefined);
     assert(!file.exists);
   });
+
+  it('can be created using ~ (home) in path', () => {
+    const file = new File.json('~/example.json');
+    if (process.env.HOME) assert(file.path.startsWith(process.env.HOME));
+  });
 });
 
 describe('FileTypeNdjson', () => {
