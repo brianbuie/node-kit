@@ -727,9 +727,11 @@ export class TypeWriter {
     moduleName;
     input = qt.jsonInputForTargetLanguage("typescript");
     outDir;
+    outFile;
     qtSettings;
     constructor(moduleName: string, settings: {
         outDir?: string;
+        outFile?: string;
     } & Partial<qt.Options> = {}) 
     async addMember(name: string, _samples: any[]) 
     async toString() 

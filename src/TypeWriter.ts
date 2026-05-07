@@ -6,12 +6,14 @@ export class TypeWriter {
   moduleName;
   input = qt.jsonInputForTargetLanguage('typescript');
   outDir;
+  outFile;
   qtSettings;
 
-  constructor(moduleName: string, settings: { outDir?: string } & Partial<qt.Options> = {}) {
+  constructor(moduleName: string, settings: { outDir?: string; outFile?: string } & Partial<qt.Options> = {}) {
     this.moduleName = moduleName;
-    const { outDir, ...qtSettings } = settings;
+    const { outDir, outFile, ...qtSettings } = settings;
     this.outDir = outDir || './types';
+    this.outFile = outFile || `${this.moduleName}.types.ts`;
     const defaultSettings = {
       lang: 'typescript',
       rendererOptions: {
@@ -42,6 +44,6 @@ export class TypeWriter {
   async toFile() {
     const result = await this.toString();
     fs.mkdirSync(this.outDir, { recursive: true });
-    fs.writeFileSync(`${this.outDir}/${this.moduleName}.d.ts`, result);
+    fs.writeFileSync(`${this.outDir}/${this.outFile}`, result);
   }
 }
