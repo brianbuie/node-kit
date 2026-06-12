@@ -20,6 +20,17 @@ describe('Dir', () => {
     assert(testDir.dirs.length > 0);
   });
 
+  it('Creates sub directory using date when no input provided', () => {
+    const sub = testDir.dir();
+    assert(sub.path.includes(testDir.path));
+    assert(/\d{8}/g.test(sub.path));
+  });
+
+  it('Creates files using date when no input provided', () => {
+    const f = testDir.file();
+    assert(/\d{8}-\d{6}/g.test(f.path));
+  });
+
   it('Handles ~ (home) input', () => {
     const homeDir = new Dir('~/example');
     if (process.env.HOME) assert(homeDir.pathUnsafe.includes(process.env.HOME));

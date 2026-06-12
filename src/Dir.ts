@@ -2,6 +2,7 @@ import * as fs from 'node:fs';
 import * as path from 'node:path';
 import sanitizeFilename from 'sanitize-filename';
 import { File } from './File.ts';
+import { Format } from './Format.ts';
 
 export type DirOptions = {
   temp?: boolean;
@@ -10,7 +11,7 @@ export type DirOptions = {
 /**
  * Reference to a specific directory with methods to create and list files.
  * @param inputPath
- * The path of the directory, created on file system the first time `.path` is read or any methods are used
+ * The path of the directory, created on file system the first time `.path` is read or any methods are used. Default: `./YYYYMMDD`
  * @param options
  * include `{ temp: true }` to enable the `.clear()` method
  */
@@ -22,7 +23,7 @@ export class Dir {
   /**
    * @param path can be relative to workspace or absolute
    */
-  constructor(inputPath: string, options: DirOptions = {}) {
+  constructor(inputPath = Format.date('ymd'), options: DirOptions = {}) {
     this.#inputPath = inputPath;
     this.isTemp = Boolean(options.temp);
   }
@@ -77,7 +78,7 @@ export class Dir {
    * const child = folder.dir('path/to/dir');
    * // child.path = '/path/to/cwd/example/path/to/dir'
    */
-  dir(subPath: string, options: DirOptions = { temp: this.isTemp }) {
+  dir(subPath = Format.date('ymd'), options: DirOptions = { temp: this.isTemp }) {
     return new (this.constructor as typeof Dir)(path.join(this.path, subPath), options) as this;
   }
 
@@ -85,7 +86,7 @@ export class Dir {
    * Creates a new temp directory inside current Dir
    * @param subPath joined with parent Dir's path to make new TempDir
    */
-  tempDir(subPath: string) {
+  tempDir(subPath?: string) {
     return this.dir(subPath, { temp: true });
   }
 
@@ -99,16 +100,16 @@ export class Dir {
    * @example
    * const folder = new Dir('example');
    * const filepath = folder.resolve('file.json');
-   * // 'example/file.json'
+   * // '/path/to/example/file.json'
    */
   filepath(base: string) {
     return path.resolve(this.path, this.sanitize(base));
   }
 
   /**
-   * Create a new file in this directory
+   * Create a new file in this directory. Filename defaults to `YYYYMMDD-HHMMSS` if not provided
    */
-  file(base: string) {
+  file(base = Format.date('ymd-hms')) {
     return new File(this.filepath(base));
   }
 

@@ -100,15 +100,15 @@ export class Dir {
     #inputPath;
     #resolved?: string;
     isTemp;
-    constructor(inputPath: string, options: DirOptions = {}) 
+    constructor(inputPath = Format.date("ymd"), options: DirOptions = {}) 
     get pathUnsafe() 
     get path() 
     get name() 
-    dir(subPath: string, options: DirOptions = { temp: this.isTemp }) 
-    tempDir(subPath: string) 
+    dir(subPath = Format.date("ymd"), options: DirOptions = { temp: this.isTemp }) 
+    tempDir(subPath?: string) 
     sanitize(filename: string) 
     filepath(base: string) 
-    file(base: string) 
+    file(base = Format.date("ymd-hms")) 
     get contents(): (Dir | File)[] 
     get dirs() 
     get files() 
@@ -122,7 +122,7 @@ export class Dir {
 }
 ```
 
-See also: [DirOptions](#type-diroptions), [File](#class-file), [temp](#variable-temp)
+See also: [DirOptions](#type-diroptions), [File](#class-file), [Format](#class-format), [temp](#variable-temp)
 
 <details>
 
@@ -131,9 +131,9 @@ See also: [DirOptions](#type-diroptions), [File](#class-file), [temp](#variable-
 ### Constructor
 
 ```ts
-constructor(inputPath: string, options: DirOptions = {}) 
+constructor(inputPath = Format.date("ymd"), options: DirOptions = {}) 
 ```
-See also: [DirOptions](#type-diroptions)
+See also: [DirOptions](#type-diroptions), [Format](#class-format)
 
 Argument Details
 
@@ -153,9 +153,9 @@ clear()
 Create a new Dir inside the current Dir
 
 ```ts
-dir(subPath: string, options: DirOptions = { temp: this.isTemp }) 
+dir(subPath = Format.date("ymd"), options: DirOptions = { temp: this.isTemp }) 
 ```
-See also: [DirOptions](#type-diroptions), [temp](#variable-temp)
+See also: [DirOptions](#type-diroptions), [Format](#class-format), [temp](#variable-temp)
 
 Argument Details
 
@@ -175,11 +175,12 @@ const child = folder.dir('path/to/dir');
 
 ### Method file
 
-Create a new file in this directory
+Create a new file in this directory. Filename defaults to `YYYYMMDD-HHMMSS` if not provided
 
 ```ts
-file(base: string) 
+file(base = Format.date("ymd-hms")) 
 ```
+See also: [Format](#class-format)
 
 ### Method filepath
 
@@ -197,7 +198,7 @@ Example
 ```ts
 const folder = new Dir('example');
 const filepath = folder.resolve('file.json');
-// 'example/file.json'
+// '/path/to/example/file.json'
 ```
 
 ### Method tempDir
@@ -205,7 +206,7 @@ const filepath = folder.resolve('file.json');
 Creates a new temp directory inside current Dir
 
 ```ts
-tempDir(subPath: string) 
+tempDir(subPath?: string) 
 ```
 
 Argument Details
