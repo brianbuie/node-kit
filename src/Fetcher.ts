@@ -22,7 +22,7 @@ export type FetchOptions = RequestInit & {
  * Includes basic methods for requesting and parsing responses
  */
 export class Fetcher {
-  defaultOptions;
+  defaultOptions: FetchOptions;
 
   constructor(opts: FetchOptions = {}) {
     this.defaultOptions = {
@@ -65,7 +65,7 @@ export class Fetcher {
   /**
    * Merges options to get headers. Useful when extending the Fetcher class to add custom auth.
    */
-  buildHeaders(route: Route, opts: FetchOptions = {}) {
+  buildHeaders(route: Route, opts: FetchOptions = {}): HeadersInit & Record<string, string> {
     const { headers } = merge({}, this.defaultOptions, opts);
     return headers || {};
   }

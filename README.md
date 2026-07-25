@@ -14,7 +14,7 @@ npm add @brianbuie/node-kit
 import { Fetcher, Log } from '@brianbuie/node-kit';
 ```
 
-# Extending Config
+## Extending Config
 
 ### tsconfig.json
 
@@ -42,6 +42,26 @@ const config = {
 
 export default config;
 ```
+
+# Changelog
+
+## 0.16
+
+- `Dir.txtFiles` renamed from `Dir.textFiles`, for consistency with other file types
+- `FileTypeCsv`
+  - Second argument changed from `keys` array to options object (`keys` can be provided as option)
+  - Automatic parsing of numbers, booleans, and nulls can be disabled (`parseNumbers`, `parseBooleans`, `parseNulls`)
+- Removed `@types/node` as peer dependency
+- Added explicit return types for everything
+
+## 0.15.1
+
+- `Dir` uses YYYYMMDD as default name
+- `File` uses YYYYMMDD-HHmmss as default name
+
+## 0.15
+
+- `TypeWriter` option for `outFile`, defaults to `[moduleName].types.ts`
 
 # API
 
@@ -77,8 +97,11 @@ so stale data can still be used if needed.
 
 ```ts
 export class Cache<T> {
-    file;
-    ttl;
+    file: FileTypeJson<{
+        savedAt: string;
+        data: T;
+    }>;
+    ttl: Duration;
     constructor(key: string, ttl: number | Duration, initialData?: T) 
     write(data: T) 
     read(): [
@@ -87,6 +110,8 @@ export class Cache<T> {
     ] 
 }
 ```
+
+See also: [FileTypeJson](#class-filetypejson)
 
 Links: [API](#api), [Classes](#classes), [Functions](#functions), [Types](#types), [Variables](#variables)
 
@@ -97,28 +122,28 @@ Reference to a specific directory with methods to create and list files.
 
 ```ts
 export class Dir {
-    #inputPath;
+    #inputPath: string;
     #resolved?: string;
-    isTemp;
+    isTemp: boolean;
     constructor(inputPath = Format.date("ymd"), options: DirOptions = {}) 
-    get pathUnsafe() 
-    get path() 
-    get name() 
-    dir(subPath = Format.date("ymd"), options: DirOptions = { temp: this.isTemp }) 
-    tempDir(subPath?: string) 
-    sanitize(filename: string) 
-    filepath(base: string) 
-    file(base = Format.date("ymd-hms")) 
+    get pathUnsafe(): string 
+    get path(): string 
+    get name(): string 
+    dir(subPath = Format.date("ymd"), options: DirOptions = { temp: this.isTemp }): Dir 
+    tempDir(subPath?: string): Dir 
+    sanitize(filename: string): string 
+    filepath(base: string): string 
+    file(base = Format.date("ymd-hms")): File 
     get contents(): (Dir | File)[] 
-    get dirs() 
-    get files() 
-    get videos() 
-    get images() 
-    get jsonFiles() 
-    get ndjsonFiles() 
-    get csvFiles() 
-    get textFiles() 
-    clear() 
+    get dirs(): Dir[] 
+    get files(): File[] 
+    get videos(): File[] 
+    get images(): File[] 
+    get jsonFiles(): File[] 
+    get ndjsonFiles(): File[] 
+    get csvFiles(): File[] 
+    get txtFiles(): File[] 
+    clear(): void 
 }
 ```
 
@@ -145,7 +170,7 @@ Argument Details
 Deletes the contents of the directory. Only allowed if created with `temp` option set to `true` (or created with `dir.tempDir` method).
 
 ```ts
-clear() 
+clear(): void 
 ```
 
 ### Method dir
@@ -153,9 +178,9 @@ clear()
 Create a new Dir inside the current Dir
 
 ```ts
-dir(subPath = Format.date("ymd"), options: DirOptions = { temp: this.isTemp }) 
+dir(subPath = Format.date("ymd"), options: DirOptions = { temp: this.isTemp }): Dir 
 ```
-See also: [DirOptions](#type-diroptions), [Format](#class-format), [temp](#variable-temp)
+See also: [Dir](#class-dir), [DirOptions](#type-diroptions), [Format](#class-format), [temp](#variable-temp)
 
 Argument Details
 
@@ -178,14 +203,14 @@ const child = folder.dir('path/to/dir');
 Create a new file in this directory. Filename defaults to `YYYYMMDD-HHMMSS` if not provided
 
 ```ts
-file(base = Format.date("ymd-hms")) 
+file(base = Format.date("ymd-hms")): File 
 ```
-See also: [Format](#class-format)
+See also: [File](#class-file), [Format](#class-format)
 
 ### Method filepath
 
 ```ts
-filepath(base: string) 
+filepath(base: string): string 
 ```
 
 Argument Details
@@ -206,8 +231,9 @@ const filepath = folder.resolve('file.json');
 Creates a new temp directory inside current Dir
 
 ```ts
-tempDir(subPath?: string) 
+tempDir(subPath?: string): Dir 
 ```
+See also: [Dir](#class-dir)
 
 Argument Details
 
@@ -227,13 +253,13 @@ Includes basic methods for requesting and parsing responses
 
 ```ts
 export class Fetcher {
-    defaultOptions;
+    defaultOptions: FetchOptions;
     constructor(opts: FetchOptions = {}) 
     buildUrl(route: Route, opts: FetchOptions = {}): [
         URL,
         string
     ] 
-    buildHeaders(route: Route, opts: FetchOptions = {}) 
+    buildHeaders(route: Route, opts: FetchOptions = {}): HeadersInit & Record<string, string> 
     buildRequest(route: Route, opts: FetchOptions = {}): [
         Request,
         FetchOptions,
@@ -267,7 +293,7 @@ See also: [FetchOptions](#type-fetchoptions), [Route](#type-route)
 Merges options to get headers. Useful when extending the Fetcher class to add custom auth.
 
 ```ts
-buildHeaders(route: Route, opts: FetchOptions = {}) 
+buildHeaders(route: Route, opts: FetchOptions = {}): HeadersInit & Record<string, string> 
 ```
 See also: [FetchOptions](#type-fetchoptions), [Route](#type-route)
 
@@ -327,32 +353,34 @@ Represents a file on the file system. If the file doesn't exist, it is created t
 
 ```ts
 export class File {
-    path;
-    root;
-    dir;
-    base;
-    name;
-    ext;
-    type;
+    path: string;
+    root: string;
+    dir: string;
+    base: string;
+    name: string;
+    ext: string;
+    type?: string;
     constructor(filepath: string) 
-    #resolve(filepath: string) 
-    get exists() 
+    #resolve(filepath: string): string 
+    get exists(): boolean 
     get stats(): Partial<fs.Stats> 
-    delete() 
-    read() 
-    lines() 
-    get readStream() 
-    get writeStream() 
-    write(contents: string | ReadableStream) 
-    append(lines: string | string[]) 
-    json<T>(contents?: T) 
-    static get json() 
-    ndjson<T extends object>(lines?: T | T[]) 
-    static get ndjson() 
-    async csv<T extends object>(rows?: T[], keys?: (keyof T)[]) 
-    static get csv() 
+    delete(): void 
+    read(): string | undefined 
+    lines(): string[] 
+    get readStream(): fs.ReadStream | Readable 
+    get writeStream(): fs.WriteStream 
+    write(contents: string | ReadableStream): void | Promise<void> 
+    append(lines: string | string[]): void 
+    json<T>(contents?: T): FileTypeJson<T> 
+    static get json(): typeof FileTypeJson 
+    ndjson<T extends object>(lines?: T | T[]): FileTypeNdjson<T> 
+    static get ndjson(): typeof FileTypeNdjson 
+    async csv<T extends object>(rows?: T[], options?: FileTypeCsvOptions<T>): Promise<FileTypeCsv<T>> 
+    static get csv(): typeof FileTypeCsv 
 }
 ```
+
+See also: [FileTypeCsv](#class-filetypecsv), [FileTypeJson](#class-filetypejson), [FileTypeNdjson](#class-filetypendjson)
 
 <details>
 
@@ -364,14 +392,15 @@ creates file if it doesn't exist, appends string or array of strings as new line
 File always ends with '\n', so contents don't need to be read before appending
 
 ```ts
-append(lines: string | string[]) 
+append(lines: string | string[]): void 
 ```
 
 ### Method csv
 
 ```ts
-async csv<T extends object>(rows?: T[], keys?: (keyof T)[]) 
+async csv<T extends object>(rows?: T[], options?: FileTypeCsvOptions<T>): Promise<FileTypeCsv<T>> 
 ```
+See also: [FileTypeCsv](#class-filetypecsv)
 
 Returns
 
@@ -391,14 +420,15 @@ await file.write([{ col: 'val2' }, { col: 'val3' }]); // ✅ Writes multiple row
 Deletes the file if it exists
 
 ```ts
-delete() 
+delete(): void 
 ```
 
 ### Method json
 
 ```ts
-json<T>(contents?: T) 
+json<T>(contents?: T): FileTypeJson<T> 
 ```
+See also: [FileTypeJson](#class-filetypejson)
 
 Returns
 
@@ -420,7 +450,7 @@ file.write({ something: 'else' }) // ✅ data is typed as object
 ### Method lines
 
 ```ts
-lines() 
+lines(): string[] 
 ```
 
 Returns
@@ -430,8 +460,9 @@ lines as strings, removes trailing '\n'
 ### Method ndjson
 
 ```ts
-ndjson<T extends object>(lines?: T | T[]) 
+ndjson<T extends object>(lines?: T | T[]): FileTypeNdjson<T> 
 ```
+See also: [FileTypeNdjson](#class-filetypendjson)
 
 Returns
 
@@ -440,7 +471,7 @@ FileTypeNdjson adaptor for current File, adds '.ndjson' extension if not present
 ### Method read
 
 ```ts
-read() 
+read(): string | undefined 
 ```
 
 Returns
@@ -458,22 +489,24 @@ A generic file adaptor, extended by specific file type implementations
 
 ```ts
 export class FileType {
-    file;
+    file: File;
     constructor(filepath: string, contents?: string) 
-    get path() 
-    get root() 
-    get dir() 
-    get base() 
-    get name() 
-    get ext() 
-    get type() 
-    get exists() 
-    get stats() 
-    delete() 
-    get readStream() 
-    get writeStream() 
+    get path(): string 
+    get root(): string 
+    get dir(): string 
+    get base(): string 
+    get name(): string 
+    get ext(): string 
+    get type(): string | undefined 
+    get exists(): boolean 
+    get stats(): Partial<fs.Stats> 
+    delete(): void 
+    get readStream(): fs.ReadStream | Readable 
+    get writeStream(): fs.WriteStream 
 }
 ```
+
+See also: [File](#class-file)
 
 Links: [API](#api), [Classes](#classes), [Functions](#functions), [Types](#types), [Variables](#variables)
 
@@ -485,10 +518,11 @@ Input rows as objects, keys are used as column headers
 
 ```ts
 export class FileTypeCsv<Row extends object> extends FileType {
-    constructor(filepath: string) 
-    async write(rows: Row[], keys?: Key<Row>[]) 
-    #parseVal(val: string) 
-    async read() 
+    options: FileTypeCsvOptions<Row>;
+    constructor(filepath: string, options: FileTypeCsvOptions<Row> = {}) 
+    async write(rows: Row[]): Promise<void> 
+    #parseVal(val: string): string | number | boolean | null 
+    async read(): Promise<Row[]> 
 }
 ```
 
@@ -500,7 +534,7 @@ Links: [API](#api), [Classes](#classes), [Functions](#functions), [Types](#types
 ## Class: FileTypeJson
 
 A .json file that maintains data type when reading/writing.
-> ⚠️ This is mildly unsafe, important/foreign json files should be validated at runtime!
+> ⚠️ This is mildly unsafe, json files should be validated at runtime!
 
 Examples
 
@@ -518,8 +552,8 @@ file.write({ something: 'else' }) // ✅ data is typed as object
 ```ts
 export class FileTypeJson<T> extends FileType {
     constructor(filepath: string, contents?: T) 
-    read() 
-    write(contents: T) 
+    read(): T | undefined 
+    write(contents: T): void 
 }
 ```
 
@@ -535,8 +569,8 @@ New-line delimited json file (.ndjson)
 ```ts
 export class FileTypeNdjson<T extends object> extends FileType {
     constructor(filepath: string, lines?: T | T[]) 
-    append(lines: T | T[]) 
-    lines() 
+    append(lines: T | T[]): void 
+    lines(): T[] 
 }
 ```
 
@@ -551,11 +585,11 @@ Helpers for formatting dates, times, and numbers as strings
 
 ```ts
 export class Format {
-    static date(formatStr: "iso" | "ymd" | "ymd-hm" | "ymd-hms" | "h:m:s" | string = "iso", d: DateArg<Date> = new Date()) 
-    static round(n: number, places = 0) 
-    static plural(amount: number, singular: string, multiple?: string) 
-    static ms(ms: number, style?: "digital") 
-    static bytes(b: number) 
+    static date(formatStr: "iso" | "ymd" | "ymd-hm" | "ymd-hms" | "h:m:s" | string = "iso", d: DateArg<Date> = new Date()): string 
+    static round(n: number, places = 0): string 
+    static plural(amount: number, singular: string, multiple?: string): string 
+    static ms(ms: number, style?: "digital"): string 
+    static bytes(b: number): string 
 }
 ```
 
@@ -568,7 +602,7 @@ export class Format {
 date-fns format() with some shortcuts
 
 ```ts
-static date(formatStr: "iso" | "ymd" | "ymd-hm" | "ymd-hms" | "h:m:s" | string = "iso", d: DateArg<Date> = new Date()) 
+static date(formatStr: "iso" | "ymd" | "ymd-hm" | "ymd-hms" | "h:m:s" | string = "iso", d: DateArg<Date> = new Date()): string 
 ```
 
 Argument Details
@@ -593,7 +627,7 @@ Format.date('h:m:s') // '13:56:45'
 Make millisecond durations actually readable (eg "123ms", "3.56s", "1m 34s", "3h 24m", "2d 4h")
 
 ```ts
-static ms(ms: number, style?: "digital") 
+static ms(ms: number, style?: "digital"): string 
 ```
 
 Argument Details
@@ -608,7 +642,7 @@ Argument Details
 Round a number to a specific set of places
 
 ```ts
-static round(n: number, places = 0) 
+static round(n: number, places = 0): string 
 ```
 
 </details>
@@ -723,20 +757,31 @@ Links: [API](#api), [Classes](#classes), [Functions](#functions), [Types](#types
 ---
 ## Class: TypeWriter
 
+Wrapper for [quicktype-core](https://github.com/glideapps/quicktype)
+
+Example
+
+```ts
+const group = new TypeWriter('Group');
+await types.addMember('Thing', [{ a: 1 }, { a: 2, b: 1 }]);
+await types.toFile();
+// type def for `Thing` saved in `types/Group.types.ts`
+```
+
 ```ts
 export class TypeWriter {
-    moduleName;
+    moduleName: string;
     input = qt.jsonInputForTargetLanguage("typescript");
-    outDir;
-    outFile;
-    qtSettings;
+    outDir: string;
+    outFile: string;
+    qtSettings: Partial<qt.Options>;
     constructor(moduleName: string, settings: {
         outDir?: string;
         outFile?: string;
     } & Partial<qt.Options> = {}) 
-    async addMember(name: string, _samples: any[]) 
-    async toString() 
-    async toFile() 
+    async addMember(name: string, _samples: any[]): Promise<void> 
+    async toString(): Promise<string> 
+    async toFile(): Promise<void> 
 }
 ```
 
@@ -749,7 +794,7 @@ export class TypeWriter {
 function toString() { [native code] }
 
 ```ts
-async toString() 
+async toString(): Promise<string> 
 ```
 
 </details>
@@ -770,8 +815,8 @@ Links: [API](#api), [Classes](#classes), [Functions](#functions), [Types](#types
 
 ## Function: snapshot
 
-Allows special objects (Error, Headers, Set) to be included in JSON.stringify output.
-Functions are removed
+Allows special objects (Error, Headers, Set) to be included in JSON.stringify output. Functions are removed.
+⚠️ This is bad! Only use it for debugging!
 
 ```ts
 export function snapshot(i: unknown, max = 50, depth = 0): any 
@@ -783,7 +828,7 @@ Links: [API](#api), [Classes](#classes), [Functions](#functions), [Types](#types
 ## Function: timeout
 
 ```ts
-export async function timeout(ms: number) 
+export async function timeout(ms: number): Promise<void> 
 ```
 
 Links: [API](#api), [Classes](#classes), [Functions](#functions), [Types](#types), [Variables](#variables)
@@ -893,13 +938,13 @@ Links: [API](#api), [Classes](#classes), [Functions](#functions), [Types](#types
 Typecheck and run all tests from `*.test.ts` files
 
 ```
-pnpm test
+npm run test
 ```
 
 Format with Prettier, generate API docs for this Readme
 
 ```
-pnpm build
+npm run build
 ```
 
 Release a new version

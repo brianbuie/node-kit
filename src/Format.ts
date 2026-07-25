@@ -20,7 +20,7 @@ export class Format {
   static date(
     formatStr: 'iso' | 'ymd' | 'ymd-hm' | 'ymd-hms' | 'h:m:s' | string = 'iso',
     d: DateArg<Date> = new Date(),
-  ) {
+  ): string {
     if (formatStr === 'iso') return formatISO(d);
     if (formatStr === 'ymd') return format(d, 'yyyyMMdd');
     if (formatStr === 'ymd-hm') return format(d, 'yyyyMMdd-HHmm');
@@ -32,11 +32,11 @@ export class Format {
   /**
    * Round a number to a specific set of places
    */
-  static round(n: number, places = 0) {
+  static round(n: number, places = 0): string {
     return new Intl.NumberFormat('en-US', { maximumFractionDigits: places }).format(n);
   }
 
-  static plural(amount: number, singular: string, multiple?: string) {
+  static plural(amount: number, singular: string, multiple?: string): string {
     return amount === 1 ? `${amount} ${singular}` : `${amount} ${multiple || singular + 's'}`;
   }
 
@@ -47,7 +47,7 @@ export class Format {
    * @see details on 'digital' format https://github.com/ungoldman/format-duration
    * @see waiting on `Intl.DurationFormat({ style: 'digital' })` types https://github.com/microsoft/TypeScript/issues/60608
    */
-  static ms(ms: number, style?: 'digital') {
+  static ms(ms: number, style?: 'digital'): string {
     if (style === 'digital') return formatDuration(ms, { leading: true });
     if (ms < 1000) return `${this.round(ms)}ms`;
     const s = ms / 1000;
@@ -60,7 +60,7 @@ export class Format {
     return `${d}d ${h % 24}h`;
   }
 
-  static bytes(b: number) {
+  static bytes(b: number): string {
     const labels = ['b', 'KB', 'MB', 'GB', 'TB'];
     let factor = 0;
     while (b >= 1024 && labels[factor + 1]) {

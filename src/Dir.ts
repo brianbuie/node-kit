@@ -16,9 +16,9 @@ export type DirOptions = {
  * include `{ temp: true }` to enable the `.clear()` method
  */
 export class Dir {
-  #inputPath;
+  #inputPath: string;
   #resolved?: string;
-  isTemp;
+  isTemp: boolean;
 
   /**
    * @param path can be relative to workspace or absolute
@@ -31,7 +31,7 @@ export class Dir {
   /**
    * The path of the directory, which might not exist yet.
    */
-  get pathUnsafe() {
+  get pathUnsafe(): string {
     if (this.#resolved) return this.#resolved;
     if (this.#inputPath[0] === '~') {
       if (process.env.HOME) {
@@ -47,7 +47,7 @@ export class Dir {
    * The path of this Dir instance. Created on file system the first time this property is read/used.
    * Safe to use the directory immediately, without calling mkdir separately.
    */
-  get path() {
+  get path(): string {
     // avoids calling mkdir every time path is read
     if (!this.#resolved) {
       this.#resolved = this.pathUnsafe;
@@ -62,7 +62,7 @@ export class Dir {
    * const example = new Dir('/path/to/folder');
    * console.log(example.name); // "folder"
    */
-  get name() {
+  get name(): string {
     return this.pathUnsafe.split(path.sep).at(-1)!;
   }
 
@@ -78,7 +78,7 @@ export class Dir {
    * const child = folder.dir('path/to/dir');
    * // child.path = '/path/to/cwd/example/path/to/dir'
    */
-  dir(subPath = Format.date('ymd'), options: DirOptions = { temp: this.isTemp }) {
+  dir(subPath = Format.date('ymd'), options: DirOptions = { temp: this.isTemp }): Dir {
     return new (this.constructor as typeof Dir)(path.join(this.path, subPath), options) as this;
   }
 
@@ -86,11 +86,11 @@ export class Dir {
    * Creates a new temp directory inside current Dir
    * @param subPath joined with parent Dir's path to make new TempDir
    */
-  tempDir(subPath?: string) {
+  tempDir(subPath?: string): Dir {
     return this.dir(subPath, { temp: true });
   }
 
-  sanitize(filename: string) {
+  sanitize(filename: string): string {
     const notUrl = filename.replace('https://', '').replace('www.', '');
     return sanitizeFilename(notUrl, { replacement: '_' }).slice(-200);
   }
@@ -102,14 +102,14 @@ export class Dir {
    * const filepath = folder.resolve('file.json');
    * // '/path/to/example/file.json'
    */
-  filepath(base: string) {
+  filepath(base: string): string {
     return path.resolve(this.path, this.sanitize(base));
   }
 
   /**
    * Create a new file in this directory. Filename defaults to `YYYYMMDD-HHMMSS` if not provided
    */
-  file(base = Format.date('ymd-hms')) {
+  file(base = Format.date('ymd-hms')): File {
     return new File(this.filepath(base));
   }
 
@@ -125,28 +125,28 @@ export class Dir {
   /**
    * All subdirectories in this directory
    */
-  get dirs() {
+  get dirs(): Dir[] {
     return this.contents.filter(f => f instanceof Dir);
   }
 
   /**
    * All files in this directory
    */
-  get files() {
+  get files(): File[] {
     return this.contents.filter(f => f instanceof File);
   }
 
   /**
    * All files with MIME type that includes "video"
    */
-  get videos() {
+  get videos(): File[] {
     return this.files.filter(f => f.type?.includes('video'));
   }
 
   /**
    * All files with MIME type that includes "image"
    */
-  get images() {
+  get images(): File[] {
     return this.files.filter(f => f.type?.includes('image'));
   }
 
@@ -157,7 +157,7 @@ export class Dir {
    * const dataFiles = dataDir.jsonFiles.map(f => f.json<ExampleType>());
    * // dataFiles: FileTypeJson<ExampleType>[]
    */
-  get jsonFiles() {
+  get jsonFiles(): File[] {
     return this.files.filter(f => f.ext === '.json');
   }
 
@@ -168,7 +168,7 @@ export class Dir {
    * const dataFiles = dataDir.ndjsonFiles.map(f => f.ndjson<ExampleType>());
    * // dataFiles: FileTypeNdjson<ExampleType>[]
    */
-  get ndjsonFiles() {
+  get ndjsonFiles(): File[] {
     return this.files.filter(f => f.ext === '.ndjson');
   }
 
@@ -179,21 +179,21 @@ export class Dir {
    * const dataFiles = dataDir.csvFile.map(f => f.csv<ExampleType>());
    * // dataFiles: FileTypeCsv<ExampleType>[]
    */
-  get csvFiles() {
+  get csvFiles(): File[] {
     return this.files.filter(f => f.ext === '.csv');
   }
 
   /**
    * All files with ext ".txt"
    */
-  get textFiles() {
+  get txtFiles(): File[] {
     return this.files.filter(f => f.ext === '.txt');
   }
 
   /**
    * Deletes the contents of the directory. Only allowed if created with `temp` option set to `true` (or created with `dir.tempDir` method).
    */
-  clear() {
+  clear(): void {
     if (!this.isTemp) throw new Error('Dir is not temporary');
     fs.rmSync(this.path, { recursive: true, force: true });
     fs.mkdirSync(this.path, { recursive: true });

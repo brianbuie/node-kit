@@ -10,13 +10,13 @@ import { snapshot } from './snapshot.ts';
  * Represents a file on the file system. If the file doesn't exist, it is created the first time it is written to.
  */
 export class File {
-  path;
-  root;
-  dir;
-  base;
-  name;
-  ext;
-  type;
+  path: string;
+  root: string;
+  dir: string;
+  base: string;
+  name: string;
+  ext: string;
+  type?: string;
 
   constructor(filepath: string) {
     this.path = this.#resolve(filepath);
@@ -29,7 +29,7 @@ export class File {
     this.type = mime.lookup(ext) || undefined;
   }
 
-  #resolve(filepath: string) {
+  #resolve(filepath: string): string {
     if (filepath[0] === '~') {
       if (process.env.HOME) {
         return path.join(process.env.HOME, filepath.slice(1));
@@ -40,7 +40,7 @@ export class File {
     return path.resolve(filepath);
   }
 
-  get exists() {
+  get exists(): boolean {
     return fs.existsSync(this.path);
   }
 
@@ -51,35 +51,35 @@ export class File {
   /**
    * Deletes the file if it exists
    */
-  delete() {
+  delete(): void {
     fs.rmSync(this.path, { force: true });
   }
 
   /**
    * @returns the contents of the file as a string, or undefined if the file doesn't exist
    */
-  read() {
+  read(): string | undefined {
     return this.exists ? fs.readFileSync(this.path, 'utf8') : undefined;
   }
 
   /**
    * @returns lines as strings, removes trailing '\n'
    */
-  lines() {
+  lines(): string[] {
     const contents = (this.read() || '').split('\n');
     return contents.at(-1)?.length ? contents : contents.slice(0, contents.length - 1);
   }
 
-  get readStream() {
+  get readStream(): fs.ReadStream | Readable {
     return this.exists ? fs.createReadStream(this.path) : Readable.from([]);
   }
 
-  get writeStream() {
+  get writeStream(): fs.WriteStream {
     fs.mkdirSync(this.dir, { recursive: true });
     return fs.createWriteStream(this.path);
   }
 
-  write(contents: string | ReadableStream) {
+  write(contents: string | ReadableStream): void | Promise<void> {
     fs.mkdirSync(this.dir, { recursive: true });
     if (typeof contents === 'string') return fs.writeFileSync(this.path, contents);
     if (contents instanceof ReadableStream) return finished(Readable.from(contents).pipe(this.writeStream));
@@ -90,7 +90,7 @@ export class File {
    * creates file if it doesn't exist, appends string or array of strings as new lines.
    * File always ends with '\n', so contents don't need to be read before appending
    */
-  append(lines: string | string[]) {
+  append(lines: string | string[]): void {
     if (!this.exists) this.write('');
     const contents = Array.isArray(lines) ? lines.join('\n') : lines;
     fs.appendFileSync(this.path, contents + '\n');
@@ -106,7 +106,7 @@ export class File {
    * const file = new File('./data').json<object>({ key: 'val' }); // FileTypeJson<object>
    * file.write({ something: 'else' }) // ✅ data is typed as object
    */
-  json<T>(contents?: T) {
+  json<T>(contents?: T): FileTypeJson<T> {
     return new FileTypeJson<T>(this.path, contents);
   }
 
@@ -114,14 +114,14 @@ export class File {
    * @example
    * const file = new File.json('data.json', { key: 'val' }); // FileTypeJson<{ key: string; }>
    */
-  static get json() {
+  static get json(): typeof FileTypeJson {
     return FileTypeJson;
   }
 
   /**
    * @returns FileTypeNdjson adaptor for current File, adds '.ndjson' extension if not present.
    */
-  ndjson<T extends object>(lines?: T | T[]) {
+  ndjson<T extends object>(lines?: T | T[]): FileTypeNdjson<T> {
     return new FileTypeNdjson<T>(this.path, lines);
   }
   /**
@@ -129,7 +129,7 @@ export class File {
    * const file = new File.ndjson('log', { key: 'val' }); // FileTypeNdjson<{ key: string; }>
    * console.log(file.path) // /path/to/cwd/log.ndjson
    */
-  static get ndjson() {
+  static get ndjson(): typeof FileTypeNdjson {
     return FileTypeNdjson;
   }
 
@@ -141,13 +141,13 @@ export class File {
    * await file.write({ col: 'val' }); // ✅ Writes one row
    * await file.write([{ col: 'val2' }, { col: 'val3' }]); // ✅ Writes multiple rows
    */
-  async csv<T extends object>(rows?: T[], keys?: (keyof T)[]) {
-    const csvFile = new FileTypeCsv<T>(this.path);
-    if (rows) await csvFile.write(rows, keys);
+  async csv<T extends object>(rows?: T[], options?: FileTypeCsvOptions<T>): Promise<FileTypeCsv<T>> {
+    const csvFile = new FileTypeCsv<T>(this.path, options);
+    if (rows) await csvFile.write(rows);
     return csvFile;
   }
 
-  static get csv() {
+  static get csv(): typeof FileTypeCsv {
     return FileTypeCsv;
   }
 }
@@ -156,65 +156,65 @@ export class File {
  * A generic file adaptor, extended by specific file type implementations
  */
 export class FileType {
-  file;
+  file: File;
 
   constructor(filepath: string, contents?: string) {
     this.file = new File(filepath);
     if (contents) this.file.write(contents);
   }
 
-  get path() {
+  get path(): string {
     return this.file.path;
   }
 
-  get root() {
+  get root(): string {
     return this.file.root;
   }
 
-  get dir() {
+  get dir(): string {
     return this.file.dir;
   }
 
-  get base() {
+  get base(): string {
     return this.file.base;
   }
 
-  get name() {
+  get name(): string {
     return this.file.name;
   }
 
-  get ext() {
+  get ext(): string {
     return this.file.ext;
   }
 
-  get type() {
+  get type(): string | undefined {
     return this.file.type;
   }
 
-  get exists() {
+  get exists(): boolean {
     return this.file.exists;
   }
 
-  get stats() {
+  get stats(): Partial<fs.Stats> {
     return this.file.stats;
   }
 
-  delete() {
+  delete(): void {
     this.file.delete();
   }
 
-  get readStream() {
+  get readStream(): fs.ReadStream | Readable {
     return this.file.readStream;
   }
 
-  get writeStream() {
+  get writeStream(): fs.WriteStream {
     return this.file.writeStream;
   }
 }
 
 /**
  * A .json file that maintains data type when reading/writing.
- * > ⚠️ This is mildly unsafe, important/foreign json files should be validated at runtime!
+ * > ⚠️ This is mildly unsafe, json files should be validated at runtime!
  * @example
  * const file = new FileTypeJson('./data', { key: 'val' }); // FileTypeJson<{ key: string; }>
  * console.log(file.path) // '/path/to/cwd/data.json'
@@ -229,12 +229,12 @@ export class FileTypeJson<T> extends FileType {
     if (contents) this.write(contents);
   }
 
-  read() {
+  read(): T | undefined {
     const contents = this.file.read();
     return contents ? (JSON.parse(contents) as T) : undefined;
   }
 
-  write(contents: T) {
+  write(contents: T): void {
     this.file.write(JSON.stringify(snapshot(contents), null, 2));
   }
 }
@@ -249,32 +249,47 @@ export class FileTypeNdjson<T extends object> extends FileType {
     if (lines) this.append(lines);
   }
 
-  append(lines: T | T[]) {
+  append(lines: T | T[]): void {
     this.file.append(
       Array.isArray(lines) ? lines.map(l => JSON.stringify(snapshot(l))) : JSON.stringify(snapshot(lines)),
     );
   }
 
-  lines() {
+  lines(): T[] {
     return this.file.lines().map(l => JSON.parse(l) as T);
   }
 }
 
 type Key<T extends object> = keyof T;
 
+type FileTypeCsvOptions<Row extends object> = {
+  parseNumbers?: boolean;
+  parseBooleans?: boolean;
+  parseNulls?: boolean;
+  keys?: Key<Row>[];
+};
+
 /**
  * Comma separated values (.csv).
  * Input rows as objects, keys are used as column headers
  */
 export class FileTypeCsv<Row extends object> extends FileType {
-  constructor(filepath: string) {
+  options: FileTypeCsvOptions<Row>;
+
+  constructor(filepath: string, options: FileTypeCsvOptions<Row> = {}) {
     super(filepath.endsWith('.csv') ? filepath : filepath + '.csv');
+    this.options = {
+      parseNumbers: true,
+      parseBooleans: true,
+      parseNulls: true,
+      ...options,
+    };
   }
 
-  async write(rows: Row[], keys?: Key<Row>[]) {
+  async write(rows: Row[]): Promise<void> {
     const headerSet = new Set<Key<Row>>();
-    if (keys) {
-      for (const key of keys) headerSet.add(key);
+    if (this.options.keys) {
+      for (const key of this.options.keys) headerSet.add(key);
     } else {
       for (const row of rows) {
         for (const key in row) headerSet.add(key);
@@ -285,15 +300,16 @@ export class FileTypeCsv<Row extends object> extends FileType {
     return finished(writeToStream(this.file.writeStream, [headers, ...outRows]));
   }
 
-  #parseVal(val: string) {
-    if (val.toLowerCase() === 'false') return false;
-    if (val.toLowerCase() === 'true') return true;
-    if (val.length === 0) return null;
-    if (/^[\.0-9]+$/.test(val)) return Number(val);
+  #parseVal(val: string): string | number | boolean | null {
+    const { parseNumbers, parseBooleans, parseNulls } = this.options;
+    if (parseBooleans && val.toLowerCase() === 'false') return false;
+    if (parseBooleans && val.toLowerCase() === 'true') return true;
+    if (parseNulls && (val.length === 0 || val.toLowerCase() === 'null')) return null;
+    if (parseNumbers && /^[\.0-9]+$/.test(val)) return Number(val);
     return val;
   }
 
-  async read() {
+  async read(): Promise<Row[]> {
     return new Promise<Row[]>((resolve, reject) => {
       const parsed: Row[] = [];
       parseStream(this.file.readStream, { headers: true })
