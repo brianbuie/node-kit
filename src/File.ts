@@ -4,7 +4,8 @@ import { Readable } from 'node:stream';
 import { finished } from 'node:stream/promises';
 import mime from 'mime-types';
 import { writeToStream, parseStream } from 'fast-csv';
-import { snapshot } from './snapshot.ts';
+import { default as probeImageSize, type ProbeResult } from 'probe-image-size';
+import { Cmd } from './Cmd.ts';
 
 /**
  * Represents a file on the file system. If the file doesn't exist, it is created the first time it is written to.
@@ -149,6 +150,26 @@ export class File {
 
   static get csv(): typeof FileTypeCsv {
     return FileTypeCsv;
+  }
+
+  async image(content?: ReadableStream) {
+    const imageFile = new FileTypeImage(this.path);
+    if (content) await imageFile.file.write(content);
+    return imageFile;
+  }
+
+  static get image(): typeof FileTypeImage {
+    return FileTypeImage;
+  }
+
+  async video(content?: ReadableStream) {
+    const videoFile = new FileTypeVideo(this.path);
+    if (content) await videoFile.file.write(content);
+    return videoFile;
+  }
+
+  static get video(): typeof FileTypeVideo {
+    return FileTypeVideo;
   }
 }
 
@@ -324,6 +345,31 @@ export class FileTypeCsv<Row extends object> extends FileType {
         })
         .on('error', e => reject(e))
         .on('end', () => resolve(parsed));
+    });
+  }
+}
+
+export class FileTypeImage extends FileType {
+  async dimensions(): Promise<{
+    width: number;
+    height: number;
+  }> {
+    return probeImageSize(this.file.readStream);
+  }
+}
+
+export class FileTypeVideo extends FileType {
+  async dimensions(): Promise<{
+    width: number;
+    height: number;
+    duration: number;
+  }> {
+    return Cmd.ffprobe(`-select_streams v:0 -show_entries stream -of json "${this.file.path}"`).then(out => {
+      const { streams } = JSON.parse(out) as {
+        streams: { width: number; height: number; duration: string }[];
+      };
+      if (!streams[0]) throw new Error('Could not parse video stream');
+      return { ...streams[0], duration: Number(streams[0].duration) };
     });
   }
 }

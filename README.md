@@ -45,6 +45,12 @@ export default config;
 
 # Changelog
 
+## 0.16.1
+
+- New `Cmd` utility for running shell commands, handling output and errors
+  - `Cmd.ffmpeg` and `Cmd.ffprobe` added with basic config for handling output (ffmpeg and ffprobe need to be installed separately)
+- New `FileTypeImage` and `FileTypeVideo` extensions with methods to get media dimensions
+
 ## 0.16
 
 - `Log` rewritten using [pino](https://github.com/pinojs/pino) under the hood. Will require updates in projects:
@@ -79,19 +85,15 @@ Links: [API](#api), [Classes](#classes), [Functions](#functions), [Types](#types
 
 # Classes
 
-| |
-| --- |
-| [Cache](#class-cache) |
-| [Dir](#class-dir) |
-| [Fetcher](#class-fetcher) |
-| [File](#class-file) |
-| [FileType](#class-filetype) |
-| [FileTypeCsv](#class-filetypecsv) |
-| [FileTypeJson](#class-filetypejson) |
-| [FileTypeNdjson](#class-filetypendjson) |
-| [Format](#class-format) |
-| [Log](#class-log) |
-| [TypeWriter](#class-typewriter) |
+| | |
+| --- | --- |
+| [Cache](#class-cache) | [FileTypeImage](#class-filetypeimage) |
+| [Cmd](#class-cmd) | [FileTypeJson](#class-filetypejson) |
+| [Dir](#class-dir) | [FileTypeNdjson](#class-filetypendjson) |
+| [Fetcher](#class-fetcher) | [FileTypeVideo](#class-filetypevideo) |
+| [File](#class-file) | [Format](#class-format) |
+| [FileType](#class-filetype) | [Log](#class-log) |
+| [FileTypeCsv](#class-filetypecsv) | [TypeWriter](#class-typewriter) |
 
 Links: [API](#api), [Classes](#classes), [Functions](#functions), [Types](#types), [Variables](#variables)
 
@@ -120,6 +122,62 @@ export class Cache<T> {
 ```
 
 See also: [FileTypeJson](#class-filetypejson)
+
+Links: [API](#api), [Classes](#classes), [Functions](#functions), [Types](#types), [Variables](#variables)
+
+---
+## Class: Cmd
+
+Spawn a child process for shell commands with `Cmd.run('command arg1=something arg2=2...")`
+
+```ts
+export class Cmd {
+    static bin = "/usr/local/bin";
+    static configure({ bin }: {
+        bin: string;
+    }): void 
+    static args(args: Args): string[] 
+    static async run(cmd: string, args: Args, opts?: SpawnOptionsWithoutStdio): Promise<string> 
+    static async ffmpeg(args: Args) 
+    static async ffprobe(args: Args) 
+}
+```
+
+See also: [Args](#type-args)
+
+<details>
+
+<summary>Class Cmd Details</summary>
+
+### Method configure
+
+configure global location of bin files
+
+```ts
+static configure({ bin }: {
+    bin: string;
+}): void 
+```
+
+### Method ffmpeg
+
+Run ffmpeg for video processing (ffmpeg needs to be installed separately)
+
+```ts
+static async ffmpeg(args: Args) 
+```
+See also: [Args](#type-args)
+
+### Method ffprobe
+
+Use ffprobe to get video stream dimensions (ffprobe needs to be installed separately)
+
+```ts
+static async ffprobe(args: Args) 
+```
+See also: [Args](#type-args)
+
+</details>
 
 Links: [API](#api), [Classes](#classes), [Functions](#functions), [Types](#types), [Variables](#variables)
 
@@ -385,10 +443,14 @@ export class File {
     static get ndjson(): typeof FileTypeNdjson 
     async csv<T extends object>(rows?: T[], options?: FileTypeCsvOptions<T>): Promise<FileTypeCsv<T>> 
     static get csv(): typeof FileTypeCsv 
+    async image(content?: ReadableStream) 
+    static get image(): typeof FileTypeImage 
+    async video(content?: ReadableStream) 
+    static get video(): typeof FileTypeVideo 
 }
 ```
 
-See also: [FileTypeCsv](#class-filetypecsv), [FileTypeJson](#class-filetypejson), [FileTypeNdjson](#class-filetypendjson)
+See also: [FileTypeCsv](#class-filetypecsv), [FileTypeImage](#class-filetypeimage), [FileTypeJson](#class-filetypejson), [FileTypeNdjson](#class-filetypendjson), [FileTypeVideo](#class-filetypevideo)
 
 <details>
 
@@ -539,6 +601,22 @@ See also: [FileType](#class-filetype)
 Links: [API](#api), [Classes](#classes), [Functions](#functions), [Types](#types), [Variables](#variables)
 
 ---
+## Class: FileTypeImage
+
+```ts
+export class FileTypeImage extends FileType {
+    async dimensions(): Promise<{
+        width: number;
+        height: number;
+    }> 
+}
+```
+
+See also: [FileType](#class-filetype)
+
+Links: [API](#api), [Classes](#classes), [Functions](#functions), [Types](#types), [Variables](#variables)
+
+---
 ## Class: FileTypeJson
 
 A .json file that maintains data type when reading/writing.
@@ -579,6 +657,23 @@ export class FileTypeNdjson<T extends object> extends FileType {
     constructor(filepath: string, lines?: T | T[]) 
     append(lines: T | T[]): void 
     lines(): T[] 
+}
+```
+
+See also: [FileType](#class-filetype)
+
+Links: [API](#api), [Classes](#classes), [Functions](#functions), [Types](#types), [Variables](#variables)
+
+---
+## Class: FileTypeVideo
+
+```ts
+export class FileTypeVideo extends FileType {
+    async dimensions(): Promise<{
+        width: number;
+        height: number;
+        duration: number;
+    }> 
 }
 ```
 
@@ -767,6 +862,7 @@ Links: [API](#api), [Classes](#classes), [Functions](#functions), [Types](#types
 
 | |
 | --- |
+| [Args](#type-args) |
 | [DirOptions](#type-diroptions) |
 | [FetchOptions](#type-fetchoptions) |
 | [LogDetails](#type-logdetails) |
@@ -779,6 +875,15 @@ Links: [API](#api), [Classes](#classes), [Functions](#functions), [Types](#types
 
 ---
 
+## Type: Args
+
+```ts
+export type Args = string | (string | number | null | undefined | Args)[]
+```
+
+Links: [API](#api), [Classes](#classes), [Functions](#functions), [Types](#types), [Variables](#variables)
+
+---
 ## Type: DirOptions
 
 ```ts
