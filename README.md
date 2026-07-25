@@ -47,7 +47,15 @@ export default config;
 
 ## 0.16
 
+- `Log` rewritten using [pino](https://github.com/pinojs/pino) under the hood. Will require updates in projects:
+  - `message` is still first argument, but second argument should include all details, instead of using an arbitrary number of args
+  - Errors should use the `err` key in the details object, instead of passing the error as an argument
+  - Dev defaults to `debug` level, prod defaults to `info`, use `LOG_LEVEL=info` env variable
+  - Removed `alert` and `notice` levels
+  - New `fatal` level above `error`
+  - New `trace` level, below `debug`
 - `Dir.txtFiles` renamed from `Dir.textFiles`, for consistency with other file types
+- `JsonFileType` & `NdJsonFileType` no longer user the `snapshot` hack to stringify special objects. Will remove `snapshot` in the future.
 - `FileTypeCsv`
   - Second argument changed from `keys` array to options object (`keys` can be provided as option)
   - Automatic parsing of numbers, booleans, and nulls can be disabled (`parseNumbers`, `parseBooleans`, `parseNulls`)
@@ -652,105 +660,29 @@ Links: [API](#api), [Classes](#classes), [Functions](#functions), [Types](#types
 ---
 ## Class: Log
 
+Wrapper for [pino](https://github.com/pinojs/pino)
+Levels: fatal, error, warn, info, debug, trace
+Use `LOG_LEVL=info` to limit what's printed to console
+Use `Log.configure` to customize the pino instance
+
 ```ts
 export class Log {
-    static getStack() 
-    static #toGcloud(entry: Entry) 
-    static #toConsole(entry: Entry, color: ChalkInstance) 
-    static #log({ severity, color }: Options, ...input: unknown[]) 
-    static prepare(...input: unknown[]): {
-        message?: string;
-        details: unknown[];
-    } 
-    static alert(...input: unknown[]) 
-    static error(...input: unknown[]) 
-    static warn(...input: unknown[]) 
-    static notice(...input: unknown[]) 
-    static info(...input: unknown[]) 
-    static debug(...input: unknown[]) 
+    static #logger?: Logger;
+    static #options: LogOptions;
+    static createLogger(): Logger 
+    static configure(options: LogOptions = {}): void 
+    static #getLogger(): Logger 
+    static #write(level: LogLevel, message: string, details?: LogDetails): void 
+    static trace(message: string, details?: LogDetails): void 
+    static debug(message: string, details?: LogDetails): void 
+    static info(message: string, details?: LogDetails): void 
+    static warn(message: string, details?: LogDetails): void 
+    static error(message: string, details?: LogDetails): void 
+    static fatal(message: string, details?: LogDetails): void 
 }
 ```
 
-<details>
-
-<summary>Class Log Details</summary>
-
-### Method 
-
-Gcloud parses JSON in stdout
-
-```ts
-static #toGcloud(entry: Entry) 
-```
-
-### Method 
-
-Includes colors and better inspection for logging during dev
-
-```ts
-static #toConsole(entry: Entry, color: ChalkInstance) 
-```
-
-### Method alert
-
-Events that require action or attention immediately
-
-```ts
-static alert(...input: unknown[]) 
-```
-
-### Method debug
-
-Debug or trace information
-
-```ts
-static debug(...input: unknown[]) 
-```
-
-### Method error
-
-Events that cause problems
-
-```ts
-static error(...input: unknown[]) 
-```
-
-### Method info
-
-Routine information, such as ongoing status or performance
-
-```ts
-static info(...input: unknown[]) 
-```
-
-### Method notice
-
-Normal but significant events, such as start up, shut down, or a configuration change
-
-```ts
-static notice(...input: unknown[]) 
-```
-
-### Method prepare
-
-Handle first argument being a string or an object with a 'message' prop
-
-```ts
-static prepare(...input: unknown[]): {
-    message?: string;
-    details: unknown[];
-} 
-```
-
-### Method warn
-
-Events that might cause problems
-
-```ts
-static warn(...input: unknown[]) 
-```
-
-</details>
+See also: [LogDetails](#type-logdetails), [LogLevel](#type-loglevel), [LogOptions](#type-logoptions)
 
 Links: [API](#api), [Classes](#classes), [Functions](#functions), [Types](#types), [Variables](#variables)
 
@@ -815,9 +747,6 @@ Links: [API](#api), [Classes](#classes), [Functions](#functions), [Types](#types
 
 ## Function: snapshot
 
-Allows special objects (Error, Headers, Set) to be included in JSON.stringify output. Functions are removed.
-⚠️ This is bad! Only use it for debugging!
-
 ```ts
 export function snapshot(i: unknown, max = 50, depth = 0): any 
 ```
@@ -840,6 +769,9 @@ Links: [API](#api), [Classes](#classes), [Functions](#functions), [Types](#types
 | --- |
 | [DirOptions](#type-diroptions) |
 | [FetchOptions](#type-fetchoptions) |
+| [LogDetails](#type-logdetails) |
+| [LogLevel](#type-loglevel) |
+| [LogOptions](#type-logoptions) |
 | [Query](#type-query) |
 | [Route](#type-route) |
 
@@ -875,6 +807,35 @@ export type FetchOptions = RequestInit & {
 ```
 
 See also: [Query](#type-query), [timeout](#function-timeout)
+
+Links: [API](#api), [Classes](#classes), [Functions](#functions), [Types](#types), [Variables](#variables)
+
+---
+## Type: LogDetails
+
+```ts
+export type LogDetails = Record<string, unknown>
+```
+
+Links: [API](#api), [Classes](#classes), [Functions](#functions), [Types](#types), [Variables](#variables)
+
+---
+## Type: LogLevel
+
+```ts
+export type LogLevel = "trace" | "debug" | "info" | "warn" | "error" | "fatal"
+```
+
+Links: [API](#api), [Classes](#classes), [Functions](#functions), [Types](#types), [Variables](#variables)
+
+---
+## Type: LogOptions
+
+```ts
+export type LogOptions = pino.LoggerOptions & {
+    environment?: string;
+}
+```
 
 Links: [API](#api), [Classes](#classes), [Functions](#functions), [Types](#types), [Variables](#variables)
 

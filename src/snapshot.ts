@@ -1,6 +1,7 @@
 import { isObjectLike } from 'lodash-es';
 
 /**
+ * @deprecated
  * Allows special objects (Error, Headers, Set) to be included in JSON.stringify output. Functions are removed.
  * ⚠️ This is bad! Only use it for debugging!
  */

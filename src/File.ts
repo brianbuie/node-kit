@@ -235,7 +235,7 @@ export class FileTypeJson<T> extends FileType {
   }
 
   write(contents: T): void {
-    this.file.write(JSON.stringify(snapshot(contents), null, 2));
+    this.file.write(JSON.stringify(contents, null, 2));
   }
 }
 
@@ -250,9 +250,7 @@ export class FileTypeNdjson<T extends object> extends FileType {
   }
 
   append(lines: T | T[]): void {
-    this.file.append(
-      Array.isArray(lines) ? lines.map(l => JSON.stringify(snapshot(l))) : JSON.stringify(snapshot(lines)),
-    );
+    this.file.append(Array.isArray(lines) ? lines.map(l => JSON.stringify(l)) : JSON.stringify(lines));
   }
 
   lines(): T[] {
