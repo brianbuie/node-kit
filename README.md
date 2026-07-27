@@ -161,7 +161,7 @@ static configure({ bin }: {
 
 ### Method ffmpeg
 
-Run ffmpeg for video processing (ffmpeg needs to be installed separately)
+Run ffmpeg for video processing (ffmpeg needs to be installed separately). Specify ffmpeg location with `FFMPEG_PATH` environment variable.
 
 ```ts
 static async ffmpeg(args: Args) 
@@ -170,10 +170,19 @@ See also: [Args](#type-args)
 
 ### Method ffprobe
 
-Use ffprobe to get video stream dimensions (ffprobe needs to be installed separately)
+Use ffprobe to get video stream dimensions (ffprobe needs to be installed separately). Specify ffmpeg location with `FFPROBE_PATH` environment variable.
 
 ```ts
 static async ffprobe(args: Args) 
+```
+See also: [Args](#type-args)
+
+### Method run
+
+Spawn child process. If command doesn't include "/", `this.bin` path will be added to the beginning of it.
+
+```ts
+static async run(cmd: string, args: Args, opts?: SpawnOptionsWithoutStdio): Promise<string> 
 ```
 See also: [Args](#type-args)
 

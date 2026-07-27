@@ -29,12 +29,16 @@ export class Cmd {
         );
   }
 
+  /**
+   * Spawn child process. If command doesn't include "/", `this.bin` path will be added to the beginning of it.
+   */
   static async run(cmd: string, args: Args, opts?: SpawnOptionsWithoutStdio): Promise<string> {
     const options = merge({ timeout: 5 * 60 * 1000 }, opts);
     return new Promise((resolve, reject) => {
       let stdout = '';
       let stderr = '';
-      const child = spawn(`${this.bin}/${cmd}`, this.args(args), options);
+      const command = cmd.includes('/') ? cmd : `${this.bin}/${cmd}`;
+      const child = spawn(command, this.args(args), options);
       child.stdout.on('data', chunk => {
         stdout += chunk.toString();
       });
@@ -50,16 +54,18 @@ export class Cmd {
   }
 
   /**
-   * Run ffmpeg for video processing (ffmpeg needs to be installed separately)
+   * Run ffmpeg for video processing (ffmpeg needs to be installed separately). Specify ffmpeg location with `FFMPEG_PATH` environment variable.
    */
   static async ffmpeg(args: Args) {
-    return this.run('ffmpeg', ['-y', '-loglevel', 'error', args], { timeout: 10 * 60 * 1000 });
+    const cmd = process.env.FFMPEG_PATH || 'ffmpeg';
+    return this.run(cmd, ['-y', '-loglevel', 'error', args], { timeout: 10 * 60 * 1000 });
   }
 
   /**
-   * Use ffprobe to get video stream dimensions (ffprobe needs to be installed separately)
+   * Use ffprobe to get video stream dimensions (ffprobe needs to be installed separately). Specify ffmpeg location with `FFPROBE_PATH` environment variable.
    */
   static async ffprobe(args: Args) {
-    return this.run('ffprobe', ['-v', 'error', args], { timeout: 10 * 60 * 1000 });
+    const cmd = process.env.FFPROBE_PATH || 'ffprobe';
+    return this.run(cmd, ['-v', 'error', args], { timeout: 10 * 60 * 1000 });
   }
 }
