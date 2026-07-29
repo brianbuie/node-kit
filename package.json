@@ -9,7 +9,7 @@
     "url": "git+https://github.com/brianbuie/node-kit.git"
   },
   "scripts": {
-    "build": "prettier . -w && tsdown && ts2md --firstHeadingLevel=1",
+    "build": "prettier . -w && tsdown",
     "test": "tsc && node --test \"src/*.test.ts\" --quiet",
     "preversion": "npm test && npm run build",
     "postversion": "git push --follow-tags"
@@ -50,7 +50,6 @@
   },
   "devDependencies": {
     "prettier": "^3.7.4",
-    "ts2md": "^0.2.8",
     "tsdown": "^0.16.6",
     "typescript": "^5.9.3"
   }

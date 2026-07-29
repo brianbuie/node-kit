@@ -41,7 +41,7 @@ export class Fetcher {
    * 2. route URLSearchParams
    * 3. options.query
    */
-  buildUrl(route: Route, opts: FetchOptions = {}): [URL, string] {
+  buildUrl = (route: Route, opts: FetchOptions = {}): [URL, string] => {
     const routeUrl = route instanceof URL ? route : new URL(route, opts.base || this.defaultOptions.base);
     const routeQuery = Object.fromEntries(routeUrl.searchParams);
     const mergedOptions = merge({}, this.defaultOptions, { query: routeQuery }, opts);
@@ -60,21 +60,21 @@ export class Fetcher {
     const url = new URL(route + search, mergedOptions.base);
     const domain = extractDomain(url.href) as string;
     return [url, domain];
-  }
+  };
 
   /**
    * Merges options to get headers. Useful when extending the Fetcher class to add custom auth.
    */
-  buildHeaders(route: Route, opts: FetchOptions = {}): HeadersInit & Record<string, string> {
+  buildHeaders = (route: Route, opts: FetchOptions = {}): HeadersInit & Record<string, string> => {
     const { headers } = merge({}, this.defaultOptions, opts);
     return headers || {};
-  }
+  };
 
   /**
    * Builds request, merging defaultOptions and provided options.
    * Includes Abort signal for timeout
    */
-  buildRequest(route: Route, opts: FetchOptions = {}): [Request, FetchOptions, string] {
+  buildRequest = (route: Route, opts: FetchOptions = {}): [Request, FetchOptions, string] => {
     const mergedOptions = merge({}, this.defaultOptions, opts);
     const { query, data, timeout, retries, ...init } = mergedOptions;
     init.headers = this.buildHeaders(route, mergedOptions);
@@ -89,14 +89,14 @@ export class Fetcher {
     const [url, domain] = this.buildUrl(route, mergedOptions);
     const req = new Request(url, init);
     return [req, mergedOptions, domain];
-  }
+  };
 
   /**
    * Builds and performs the request, merging provided options with defaultOptions.
    * If `opts.data` is provided, method is updated to POST, content-type json, data is stringified in the body.
    * Retries on local or network error, with increasing backoff.
    */
-  async fetch(route: Route, opts: FetchOptions = {}): Promise<[Response, Request]> {
+  fetch = async (route: Route, opts: FetchOptions = {}): Promise<[Response, Request]> => {
     const [_req, options] = this.buildRequest(route, opts);
     const maxAttempts = (options.retries || 0) + 1;
     let attempt = 0;
@@ -120,16 +120,16 @@ export class Fetcher {
       if (res) return [res, req];
     }
     throw new Error(`Failed to fetch ${_req.url}`);
-  }
+  };
 
-  async fetchText(route: Route, opts: FetchOptions = {}): Promise<[string, Response, Request]> {
+  fetchText = async (route: Route, opts: FetchOptions = {}): Promise<[string, Response, Request]> => {
     return this.fetch(route, opts).then(async ([res, req]) => {
       const text = await res.text();
       return [text, res, req];
     });
-  }
+  };
 
-  async fetchJson<T>(route: Route, opts: FetchOptions = {}): Promise<[T, Response, Request]> {
+  fetchJson = async <T>(route: Route, opts: FetchOptions = {}): Promise<[T, Response, Request]> => {
     return this.fetchText(route, opts).then(([txt, res, req]) => [JSON.parse(txt) as T, res, req]);
-  }
+  };
 }

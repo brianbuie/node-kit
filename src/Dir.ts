@@ -78,22 +78,22 @@ export class Dir {
    * const child = folder.dir('path/to/dir');
    * // child.path = '/path/to/cwd/example/path/to/dir'
    */
-  dir(subPath = Format.date('ymd'), options: DirOptions = { temp: this.isTemp }): Dir {
+  dir = (subPath = Format.date('ymd'), options: DirOptions = { temp: this.isTemp }): Dir => {
     return new (this.constructor as typeof Dir)(path.join(this.path, subPath), options) as this;
-  }
+  };
 
   /**
    * Creates a new temp directory inside current Dir
    * @param subPath joined with parent Dir's path to make new TempDir
    */
-  tempDir(subPath?: string): Dir {
+  tempDir = (subPath?: string): Dir => {
     return this.dir(subPath, { temp: true });
-  }
+  };
 
-  sanitize(filename: string): string {
+  sanitize = (filename: string): string => {
     const notUrl = filename.replace('https://', '').replace('www.', '');
     return sanitizeFilename(notUrl, { replacement: '_' }).slice(-200);
-  }
+  };
 
   /**
    * @param base - The file base (name and extension)
@@ -102,16 +102,16 @@ export class Dir {
    * const filepath = folder.resolve('file.json');
    * // '/path/to/example/file.json'
    */
-  filepath(base: string): string {
+  filepath = (base: string): string => {
     return path.resolve(this.path, this.sanitize(base));
-  }
+  };
 
   /**
    * Create a new file in this directory. Filename defaults to `YYYYMMDD-HHMMSS` if not provided
    */
-  file(base = Format.date('ymd-hms')): File {
+  file = (base = Format.date('ymd-hms')): File => {
     return new File(this.filepath(base));
-  }
+  };
 
   /**
    * All files and subdirectories in in this directory, returned as Dir and File instances
@@ -193,11 +193,11 @@ export class Dir {
   /**
    * Deletes the contents of the directory. Only allowed if created with `temp` option set to `true` (or created with `dir.tempDir` method).
    */
-  clear(): void {
+  clear = (): void => {
     if (!this.isTemp) throw new Error('Dir is not temporary');
     fs.rmSync(this.path, { recursive: true, force: true });
     fs.mkdirSync(this.path, { recursive: true });
-  }
+  };
 }
 
 /**

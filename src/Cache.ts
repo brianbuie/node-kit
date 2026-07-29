@@ -1,5 +1,5 @@
 import { type Duration, isAfter, add } from 'date-fns';
-import { type FileTypeJson } from './File.ts';
+import { type FileJson } from './File.ts';
 import { Dir } from './Dir.ts';
 
 /**
@@ -8,7 +8,7 @@ import { Dir } from './Dir.ts';
  * so stale data can still be used if needed.
  */
 export class Cache<T> {
-  file: FileTypeJson<{ savedAt: string; data: T }>;
+  file: FileJson<{ savedAt: string; data: T }>;
   ttl: Duration;
 
   constructor(key: string, ttl: number | Duration, initialData?: T) {
@@ -18,13 +18,13 @@ export class Cache<T> {
     if (initialData) this.write(initialData);
   }
 
-  write(data: T) {
+  write = (data: T) => {
     this.file.write({ savedAt: new Date().toUTCString(), data });
-  }
+  };
 
-  read(): [T | undefined, boolean] {
+  read = (): [T | undefined, boolean] => {
     const { savedAt, data } = this.file.read() || {};
     const isFresh = Boolean(savedAt && isAfter(add(savedAt, this.ttl), new Date()));
     return [data, isFresh];
-  }
+  };
 }

@@ -34,12 +34,12 @@ export class TypeWriter {
     this.qtSettings = merge(defaultSettings, qtSettings);
   }
 
-  async addMember(name: string, _samples: any[]): Promise<void> {
+  addMember = async (name: string, _samples: any[]): Promise<void> => {
     const samples = _samples.map(s => (typeof s === 'string' ? s : JSON.stringify(s)));
     await this.input.addSource({ name, samples });
-  }
+  };
 
-  async toString(): Promise<string> {
+  toString = async (): Promise<string> => {
     const inputData = new qt.InputData();
     inputData.addInput(this.input);
     const result = await qt.quicktype({
@@ -47,11 +47,11 @@ export class TypeWriter {
       ...this.qtSettings,
     });
     return result.lines.join('\n');
-  }
+  };
 
-  async toFile(): Promise<void> {
+  toFile = async (): Promise<void> => {
     const result = await this.toString();
     fs.mkdirSync(this.outDir, { recursive: true });
     fs.writeFileSync(`${this.outDir}/${this.outFile}`, result);
-  }
+  };
 }

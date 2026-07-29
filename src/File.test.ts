@@ -19,7 +19,7 @@ describe('File', () => {
     const img = testDir.file('image.jpg');
     await fetch('https://testingbot.com/free-online-tools/random-avatar/300').then(res => {
       if (!res.body) throw new Error('No response body');
-      return img.write(res.body);
+      return img.writeStream(res.body);
     });
     assert(img.exists);
   });
@@ -43,8 +43,8 @@ describe('FileType', () => {
 
   it('Deletes files', () => {
     const test = testDir.file('delete-test.txt');
-    test.write('test');
-    assert.equal(test.read(), 'test');
+    test.writeText('test');
+    assert.equal(test.readText(), 'test');
     test.delete();
     assert.equal(test.exists, false);
   });
@@ -76,10 +76,10 @@ describe('FileTypeNdjson', () => {
     const file = testDir.file('appends-lines').ndjson();
     file.delete();
     file.append([thing, thing]);
-    assert(file.lines().length === 2);
+    assert(file.read().length === 2);
     file.append(thing);
-    assert(file.lines().length === 3);
-    file.lines().forEach(line => {
+    assert(file.read().length === 3);
+    file.read().forEach(line => {
       assert.deepStrictEqual(line, thing);
     });
   });

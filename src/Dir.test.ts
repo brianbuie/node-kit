@@ -68,7 +68,7 @@ describe('Dir', () => {
     const child = test.dir('child');
     assert(child instanceof Example);
     const childFile = child.file('child.test');
-    childFile.write('');
+    childFile.writeText('');
     assert(child.testFiles.map(f => f.path).includes(childFile.path));
     assert(test.dirs.map(d => d.path).includes(child.path));
     const childTemp = child.tempDir('temp-child');
