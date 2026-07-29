@@ -1,5 +1,5 @@
-export async function timeout(ms: number): Promise<void> {
+export const timeout = async (ms: number): Promise<void> => {
   return new Promise(resolve => {
     setTimeout(resolve, ms);
   });
-}
+};

@@ -19,7 +19,7 @@ export class Log {
   static #logger?: Logger;
   static #options: LogOptions;
 
-  static createLogger(): Logger {
+  static createLogger = (): Logger => {
     const isProduction = this.#options?.environment === 'production' || process.env.NODE_ENV === 'production';
     const defaultOptions: LogOptions = {
       level: process.env.LOG_LEVEL ?? (isProduction ? 'info' : 'debug'),
@@ -41,46 +41,46 @@ export class Log {
           },
     };
     return pino(merge(defaultOptions, this.#options));
-  }
+  };
 
-  static configure(options: LogOptions = {}): void {
+  static configure = (options: LogOptions = {}): void => {
     this.#options = options;
     this.#logger = this.createLogger();
-  }
+  };
 
-  static #getLogger(): Logger {
+  static #getLogger = (): Logger => {
     return (this.#logger ??= this.createLogger());
-  }
+  };
 
-  static #write(level: LogLevel, message: string, details?: LogDetails): void {
+  static #write = (level: LogLevel, message: string, details?: LogDetails): void => {
     if (details === undefined) {
       Log.#getLogger()[level](message);
     } else {
       Log.#getLogger()[level](details, message);
     }
-  }
+  };
 
-  static trace(message: string, details?: LogDetails): void {
+  static trace = (message: string, details?: LogDetails): void => {
     Log.#write('trace', message, details);
-  }
+  };
 
-  static debug(message: string, details?: LogDetails): void {
+  static debug = (message: string, details?: LogDetails): void => {
     Log.#write('debug', message, details);
-  }
+  };
 
-  static info(message: string, details?: LogDetails): void {
+  static info = (message: string, details?: LogDetails): void => {
     Log.#write('info', message, details);
-  }
+  };
 
-  static warn(message: string, details?: LogDetails): void {
+  static warn = (message: string, details?: LogDetails): void => {
     Log.#write('warn', message, details);
-  }
+  };
 
-  static error(message: string, details?: LogDetails): void {
+  static error = (message: string, details?: LogDetails): void => {
     Log.#write('error', message, details);
-  }
+  };
 
-  static fatal(message: string, details?: LogDetails): void {
+  static fatal = (message: string, details?: LogDetails): void => {
     Log.#write('fatal', message, details);
-  }
+  };
 }

@@ -17,28 +17,28 @@ export class Format {
    * Format.date('h:m:s') // '13:56:45'
    * @see more format options https://date-fns.org/v4.1.0/docs/format
    */
-  static date(
+  static date = (
     formatStr: 'iso' | 'ymd' | 'ymd-hm' | 'ymd-hms' | 'h:m:s' | string = 'iso',
     d: DateArg<Date> = new Date(),
-  ): string {
+  ): string => {
     if (formatStr === 'iso') return formatISO(d);
     if (formatStr === 'ymd') return format(d, 'yyyyMMdd');
     if (formatStr === 'ymd-hm') return format(d, 'yyyyMMdd-HHmm');
     if (formatStr === 'ymd-hms') return format(d, 'yyyyMMdd-HHmmss');
     if (formatStr === 'h:m:s') return format(d, 'HH:mm:ss');
     return format(d, formatStr);
-  }
+  };
 
   /**
    * Round a number to a specific set of places
    */
-  static round(n: number, places = 0): string {
+  static round = (n: number, places = 0): string => {
     return new Intl.NumberFormat('en-US', { maximumFractionDigits: places }).format(n);
-  }
+  };
 
-  static plural(amount: number, singular: string, multiple?: string): string {
+  static plural = (amount: number, singular: string, multiple?: string): string => {
     return amount === 1 ? `${amount} ${singular}` : `${amount} ${multiple || singular + 's'}`;
-  }
+  };
 
   /**
    * Make millisecond durations actually readable (eg "123ms", "3.56s", "1m 34s", "3h 24m", "2d 4h")
@@ -47,7 +47,7 @@ export class Format {
    * @see details on 'digital' format https://github.com/ungoldman/format-duration
    * @see waiting on `Intl.DurationFormat({ style: 'digital' })` types https://github.com/microsoft/TypeScript/issues/60608
    */
-  static ms(ms: number, style?: 'digital'): string {
+  static ms = (ms: number, style?: 'digital'): string => {
     if (style === 'digital') return formatDuration(ms, { leading: true });
     if (ms < 1000) return `${this.round(ms)}ms`;
     const s = ms / 1000;
@@ -58,9 +58,9 @@ export class Format {
     if (h < 24) return `${h}h ${m % 60}m`;
     const d = Math.floor(h / 24);
     return `${d}d ${h % 24}h`;
-  }
+  };
 
-  static bytes(b: number): string {
+  static bytes = (b: number): string => {
     const labels = ['b', 'KB', 'MB', 'GB', 'TB'];
     let factor = 0;
     while (b >= 1024 && labels[factor + 1]) {
@@ -68,5 +68,5 @@ export class Format {
       factor++;
     }
     return `${this.round(b, 2)} ${labels[factor]}`;
-  }
+  };
 }

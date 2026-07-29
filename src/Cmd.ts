@@ -15,11 +15,11 @@ export class Cmd {
   /**
    * configure global location of bin files
    */
-  static configure({ bin }: { bin: string }): void {
+  static configure = ({ bin }: { bin: string }): void => {
     this.bin = bin;
-  }
+  };
 
-  static args(args: Args): string[] {
+  static args = (args: Args): string[] => {
     return typeof args === 'string'
       ? parseArgs(args)
       : parseArgs(
@@ -27,12 +27,12 @@ export class Cmd {
             .filter(a => a !== undefined)
             .join(' '),
         );
-  }
+  };
 
   /**
    * Spawn child process. If command doesn't include "/", `this.bin` path will be added to the beginning of it.
    */
-  static async run(cmd: string, args: Args, opts?: SpawnOptionsWithoutStdio): Promise<string> {
+  static run = async (cmd: string, args: Args, opts?: SpawnOptionsWithoutStdio): Promise<string> => {
     const options = merge({ timeout: 5 * 60 * 1000 }, opts);
     return new Promise((resolve, reject) => {
       let stdout = '';
@@ -51,21 +51,21 @@ export class Cmd {
         resolve(stdout.trim());
       });
     });
-  }
+  };
 
   /**
    * Run ffmpeg for video processing (ffmpeg needs to be installed separately). Specify ffmpeg location with `FFMPEG_PATH` environment variable.
    */
-  static async ffmpeg(args: Args) {
+  static ffmpeg = async (args: Args) => {
     const cmd = process.env.FFMPEG_PATH || 'ffmpeg';
     return this.run(cmd, ['-y', '-loglevel', 'error', args], { timeout: 10 * 60 * 1000 });
-  }
+  };
 
   /**
    * Use ffprobe to get video stream dimensions (ffprobe needs to be installed separately). Specify ffmpeg location with `FFPROBE_PATH` environment variable.
    */
-  static async ffprobe(args: Args) {
+  static ffprobe = async (args: Args) => {
     const cmd = process.env.FFPROBE_PATH || 'ffprobe';
     return this.run(cmd, ['-v', 'error', args], { timeout: 10 * 60 * 1000 });
-  }
+  };
 }
