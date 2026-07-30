@@ -1,7 +1,5 @@
-import { merge } from 'lodash-es';
+import { merge, isObjectLike } from 'lodash-es';
 import { default as pino, type Logger } from 'pino';
-
-export type LogDetails = Record<string, unknown>;
 
 export type LogLevel = 'trace' | 'debug' | 'info' | 'warn' | 'error' | 'fatal';
 
@@ -35,7 +33,7 @@ export class Log {
             target: 'pino-pretty',
             options: {
               colorize: true,
-              singleLine: true,
+              singleLine: false,
               ignore: 'pid,hostname',
             },
           },
@@ -48,39 +46,49 @@ export class Log {
     this.#logger = this.createLogger();
   };
 
-  static #getLogger = (): Logger => {
-    return (this.#logger ??= this.createLogger());
-  };
-
-  static #write = (level: LogLevel, message: string, details?: LogDetails): void => {
-    if (details === undefined) {
-      Log.#getLogger()[level](message);
+  /**
+   * Use first argument as message, if it's a string, otherwise treat it as data
+   * Provides a little flexibility, instead of using a dummy message when trying to debug data
+   */
+  static #write = (level: LogLevel, arg1: any, arg2?: any): void => {
+    let msg: string = '';
+    let tmp: any = undefined;
+    let details: Record<string, unknown> = {};
+    if (typeof arg1 === 'string') {
+      msg = arg1;
+      tmp = arg2;
     } else {
-      Log.#getLogger()[level](details, message);
+      tmp = arg1;
     }
+    if (isObjectLike(tmp) && !Array.isArray(tmp)) {
+      details = tmp;
+    } else {
+      details = { details: tmp };
+    }
+    (this.#logger ??= this.createLogger())[level](details, msg);
   };
 
-  static trace = (message: string, details?: LogDetails): void => {
-    Log.#write('trace', message, details);
+  static trace = (arg1: any, arg2?: any): void => {
+    this.#write('trace', arg1, arg2);
   };
 
-  static debug = (message: string, details?: LogDetails): void => {
-    Log.#write('debug', message, details);
+  static debug = (arg1: any, arg2?: any): void => {
+    this.#write('debug', arg1, arg2);
   };
 
-  static info = (message: string, details?: LogDetails): void => {
-    Log.#write('info', message, details);
+  static info = (arg1: any, arg2?: any): void => {
+    this.#write('info', arg1, arg2);
   };
 
-  static warn = (message: string, details?: LogDetails): void => {
-    Log.#write('warn', message, details);
+  static warn = (arg1: any, arg2?: any): void => {
+    this.#write('warn', arg1, arg2);
   };
 
-  static error = (message: string, details?: LogDetails): void => {
-    Log.#write('error', message, details);
+  static error = (arg1: any, arg2?: any): void => {
+    this.#write('error', arg1, arg2);
   };
 
-  static fatal = (message: string, details?: LogDetails): void => {
-    Log.#write('fatal', message, details);
+  static fatal = (arg1: any, arg2?: any): void => {
+    this.#write('fatal', arg1, arg2);
   };
 }
