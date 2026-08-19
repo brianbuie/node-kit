@@ -35,6 +35,7 @@
     "@types/mime-types": "^3.0.1",
     "@types/node": "^24.9.1",
     "@types/probe-image-size": "^7.2.5",
+    "chalk": "^6.0.0",
     "date-fns": "^4.1.0",
     "extract-domain": "^5.0.2",
     "fast-csv": "^5.0.5",
