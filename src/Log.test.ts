@@ -1,5 +1,4 @@
 import { describe, it } from 'node:test';
-import assert from 'node:assert';
 import { Log } from './Log.ts';
 
 describe('Log', () => {
@@ -7,27 +6,35 @@ describe('Log', () => {
     num: 1,
     str: 'string detail',
   };
+
   function allLevels() {
     Log.trace('trace');
+    console.log('');
     Log.debug('debug');
+    console.log('');
     Log.info('info', details);
+    console.log('');
     Log.info(details);
-    Log.info([1, 2, 3]);
+    console.log('');
+    Log.info({ arr: [1, 2, 3] });
+    console.log('');
     Log.warn('warn');
+    console.log('');
     try {
       throw new Error('Test error');
     } catch (err) {
-      Log.error({ err });
+      Log.error(err);
+      console.log('');
     }
-    Log.fatal('fatal');
+    Log.alert('This is an alert');
+    console.log('');
   }
 
-  it('Logs for dev', () => {
-    allLevels();
-  });
+  allLevels();
 
-  it('Logs for production', () => {
-    Log.configure({ environment: 'production' });
-    allLevels();
-  });
+  Log.isProd = true;
+  allLevels();
+
+  Log.isGcloud = true;
+  allLevels();
 });
