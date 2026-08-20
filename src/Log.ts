@@ -1,94 +1,143 @@
-import { merge, isObjectLike } from 'lodash-es';
-import { default as pino, type Logger } from 'pino';
+import { inspect } from 'node:util';
+import { isObjectLike } from 'lodash-es';
+import chalk, { type ChalkInstance } from 'chalk';
+import { snapshot } from './snapshot.ts';
+import { Format } from './Format.ts';
 
-export type LogLevel = 'trace' | 'debug' | 'info' | 'warn' | 'error' | 'fatal';
+/**
+ * Loosely based on Google's [LogSeverity](https://docs.cloud.google.com/logging/docs/reference/v2/rest/v2/LogEntry#logseverity),
+ * without some of the redundant severe levels.
+ */
+const Level = {
+  TRACE: 0,
+  DEBUG: 1,
+  INFO: 2,
+  WARN: 3,
+  ERROR: 4,
+  ALERT: 5,
+};
 
-export type LogOptions = pino.LoggerOptions & {
-  environment?: string;
+type Severity = keyof typeof Level;
+
+const GcloudLevelMap = {
+  TRACE: 'DEBUG',
+  DEBUG: 'DEBUG',
+  INFO: 'INFO',
+  WARN: 'WARNING',
+  ERROR: 'ERROR',
+  ALERT: 'ALERT',
+} as const;
+
+type LogArgs = [string, unknown] | [unknown];
+
+type LogEntry = {
+  message?: string;
+  severity: Severity;
+  stack?: string;
+  details?: unknown;
+};
+
+type Options = {
+  severity: Severity;
+  color: ChalkInstance;
 };
 
 /**
- * Wrapper for [pino](https://github.com/pinojs/pino)
- * Levels: fatal, error, warn, info, debug, trace
- * Use `LOG_LEVL=info` to limit what's printed to console
- * Use `Log.configure` to customize the pino instance
+ * Levels: TRACE, DEBUG, INFO, WARN, ERROR, ALERT
+ * Use `LOG_LEVL=INFO` to limit what's printed to console
  */
 export class Log {
-  static #logger?: Logger;
-  static #options: LogOptions;
+  // https://cloud.google.com/run/docs/container-contract#env-vars
+  static isGcloud = process.env.K_SERVICE !== undefined || process.env.CLOUD_RUN_JOB !== undefined;
+  static isProd = process.env.NODE_ENV === 'production';
 
-  static createLogger = (): Logger => {
-    const isProduction = this.#options?.environment === 'production' || process.env.NODE_ENV === 'production';
-    const defaultOptions: LogOptions = {
-      level: process.env.LOG_LEVEL ?? (isProduction ? 'info' : 'debug'),
-      timestamp: pino.stdTimeFunctions.isoTime,
-      formatters: {
-        level(label: string) {
-          return { level: label };
-        },
-      },
-      transport: isProduction
-        ? undefined
-        : {
-            target: 'pino-pretty',
-            options: {
-              colorize: true,
-              singleLine: false,
-              ignore: 'pid,hostname',
-            },
-          },
-    };
-    return pino(merge(defaultOptions, this.#options));
-  };
-
-  static configure = (options: LogOptions = {}): void => {
-    this.#options = options;
-    this.#logger = this.createLogger();
+  /**
+   * Gcloud parses JSON in stdout
+   */
+  static #toGcloud = (entry: LogEntry): void => {
+    const severity = GcloudLevelMap[entry.severity];
+    console.log(JSON.stringify(snapshot({ ...entry, severity })));
   };
 
   /**
-   * Use first argument as message, if it's a string, otherwise treat it as data
-   * Provides a little flexibility, instead of using a dummy message when trying to debug data
+   * Includes colors and better inspection for logging during dev
    */
-  static #write = (level: LogLevel, arg1: any, arg2?: any): void => {
-    let msg: string = '';
-    let tmp: any = undefined;
-    let details: Record<string, unknown> = {};
+  static #toConsole = (entry: LogEntry, color: ChalkInstance): void => {
+    if (entry.message) console.log(color(`${Format.date('h:m:s')} [${entry.severity}] ${entry.message}`));
+    if (entry.details)
+      console.log(inspect(entry.details, { depth: 10, breakLength: 100, compact: true, colors: true }));
+  };
+
+  /**
+   * Handle first argument being a string or an object with a 'message' or 'msg' prop
+   */
+  static prepare = ([arg1, arg2]: LogArgs): Omit<LogEntry, 'severity'> => {
     if (typeof arg1 === 'string') {
-      msg = arg1;
-      tmp = arg2;
-    } else {
-      tmp = arg1;
+      return { message: arg1, details: arg2 };
     }
-    if (isObjectLike(tmp) && !Array.isArray(tmp)) {
-      details = tmp;
-    } else {
-      details = { details: tmp };
+    if (isObjectLike(arg1) && !Array.isArray(arg1)) {
+      const details = arg1 as { message?: string; msg?: string };
+      return { message: details?.message || details?.msg, details };
     }
-    (this.#logger ??= this.createLogger())[level](details, msg);
+    return { details: arg1 };
   };
 
-  static trace = (arg1: any, arg2?: any): void => {
-    this.#write('trace', arg1, arg2);
+  static shouldLog = (entry: LogEntry) => {
+    const env = process.env.LOG_LEVEL as Severity;
+    const min = Level[env] ?? (this.isProd ? 2 : 1);
+    return Level[entry.severity] >= min;
   };
 
-  static debug = (arg1: any, arg2?: any): void => {
-    this.#write('debug', arg1, arg2);
+  static #log = ({ severity, color }: Options, input: LogArgs): void => {
+    const { message, details } = this.prepare(input);
+    const entry: LogEntry = { message, severity, details };
+    if (!this.shouldLog(entry)) return;
+    if (this.isGcloud) {
+      this.#toGcloud(entry);
+    } else {
+      this.#toConsole(entry, color);
+    }
   };
 
-  static info = (arg1: any, arg2?: any): void => {
-    this.#write('info', arg1, arg2);
+  /**
+   * trace information (never logged in gcloud)
+   */
+  static trace = (...input: LogArgs): void => {
+    this.#log({ severity: 'TRACE', color: chalk.gray }, input);
   };
 
-  static warn = (arg1: any, arg2?: any): void => {
-    this.#write('warn', arg1, arg2);
+  /**
+   * Debug info (only logged in development)
+   */
+  static debug = (...input: LogArgs): void => {
+    this.#log({ severity: 'DEBUG', color: chalk.gray }, input);
   };
 
-  static error = (arg1: any, arg2?: any): void => {
-    this.#write('error', arg1, arg2);
+  /**
+   * Routine information, such as ongoing status or performance
+   */
+  static info = (...input: LogArgs): void => {
+    this.#log({ severity: 'INFO', color: chalk.white }, input);
   };
 
-  static fatal = (arg1: any, arg2?: any): void => {
-    this.#write('fatal', arg1, arg2);
+  /**
+   * Events that might cause problems
+   */
+  static warn = (...input: LogArgs): void => {
+    this.#log({ severity: 'WARN', color: chalk.yellow }, input);
+  };
+
+  /**
+   * Events that cause problems
+   */
+  static error = (...input: LogArgs): void => {
+    this.#log({ severity: 'ERROR', color: chalk.red }, input);
+  };
+
+  /**
+   * Events that require action or attention immediately.
+   */
+  static alert = (...input: LogArgs): void => {
+    this.#log({ severity: 'ALERT', color: chalk.bgRed }, input);
   };
 }

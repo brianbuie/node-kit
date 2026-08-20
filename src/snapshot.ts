@@ -1,9 +1,8 @@
 import { isObjectLike } from 'lodash-es';
 
 /**
- * @deprecated
  * Allows special objects (Error, Headers, Set) to be included in JSON.stringify output. Functions are removed.
- * ⚠️ This is bad! Only use it for debugging!
+ * ⚠️ Should only be used for logging and debugging!
  */
 export const snapshot = (i: unknown, max = 50, depth = 0): any => {
   if (Array.isArray(i)) {
