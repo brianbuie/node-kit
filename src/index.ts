@@ -7,4 +7,3 @@ export { Format } from './Format.ts';
 export { Log } from './Log.ts';
 export { snapshot } from './snapshot.ts';
 export { timeout } from './timeout.ts';
-export { TypeWriter } from './TypeWriter.ts';

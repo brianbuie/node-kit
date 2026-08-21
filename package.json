@@ -10,7 +10,7 @@
   },
   "scripts": {
     "build": "prettier . -w && tsdown",
-    "test": "tsc && node --test \"src/*.test.ts\" --quiet",
+    "test": "tsc && node --test \"src/**/*.test.ts\" --quiet",
     "preversion": "npm test && npm run build",
     "postversion": "git push --follow-tags"
   },
@@ -20,6 +20,11 @@
       "types": "./dist/index.d.mts",
       "import": "./dist/index.mjs",
       "default": "./dist/index.mjs"
+    },
+    "./TypeWriter": {
+      "types": "./dist/TypeWriter.d.mts",
+      "import": "./dist/TypeWriter.mjs",
+      "default": "./dist/TypeWriter.mjs"
     }
   },
   "files": [
@@ -44,13 +49,21 @@
     "lodash-es": "^4.17.23",
     "mime-types": "^3.0.2",
     "probe-image-size": "^7.3.0",
-    "quicktype-core": "^23.2.6",
     "sanitize-filename": "^1.6.3",
     "string-argv": "^0.3.2"
   },
   "devDependencies": {
     "prettier": "^3.7.4",
+    "quicktype-core": "^23.2.6",
     "tsdown": "^0.16.6",
     "typescript": "^5.9.3"
+  },
+  "peerDependencies": {
+    "quicktype-core": "^23.2.6"
+  },
+  "peerDependenciesMeta": {
+    "quicktype-core": {
+      "optional": true
+    }
   }
 }
