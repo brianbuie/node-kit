@@ -1,4 +1,6 @@
-# Node Kit
+### ⚠️ This package has moved! [github.com/brianbuie/kit](https://github.com/brianbuie/kit)
+
+# ~~Node Kit~~ → Kit
 
 Basic tools for quick node.js projects
 
