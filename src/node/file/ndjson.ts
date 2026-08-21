@@ -1,4 +1,4 @@
-import { FileBase } from './FileBase.ts';
+import { FileBase } from './base.ts';
 
 /**
  * New-line delimited json file (.ndjson)

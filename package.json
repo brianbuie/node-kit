@@ -15,16 +15,20 @@
     "postversion": "git push --follow-tags"
   },
   "type": "module",
+  "sideEffects": false,
   "exports": {
     ".": {
       "types": "./dist/index.d.mts",
-      "import": "./dist/index.mjs",
-      "default": "./dist/index.mjs"
+      "node": "./dist/index.mjs",
+      "default": "./dist/core.mjs"
     },
-    "./TypeWriter": {
-      "types": "./dist/TypeWriter.d.mts",
-      "import": "./dist/TypeWriter.mjs",
-      "default": "./dist/TypeWriter.mjs"
+    "./core": {
+      "types": "./dist/core.d.mts",
+      "default": "./dist/core.mjs"
+    },
+    "./type-writer": {
+      "types": "./dist/type-writer.d.mts",
+      "default": "./dist/type-writer.mjs"
     }
   },
   "files": [

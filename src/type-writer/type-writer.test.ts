@@ -1,6 +1,6 @@
 import { describe, it } from 'node:test';
 import assert from 'node:assert';
-import { TypeWriter } from './TypeWriter.ts';
+import { TypeWriter } from './type-writer.ts';
 
 describe('TypeWriter', () => {
   const test = new TypeWriter('Test');

@@ -1,4 +1,4 @@
-import { FileBase } from './FileBase.ts';
+import { FileBase } from './base.ts';
 
 /**
  * A .json file that maintains data type when reading/writing.

@@ -1,5 +1,5 @@
 import { parseStream, writeToStream } from 'fast-csv';
-import { FileBase } from './FileBase.ts';
+import { FileBase } from './base.ts';
 import { finished } from 'node:stream/promises';
 
 type CsvValue = string | number | boolean | null;

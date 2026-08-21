@@ -1,6 +1,6 @@
 import { describe, it, beforeEach, afterEach, mock } from 'node:test';
 import assert from 'node:assert';
-import { Log } from './Log.ts';
+import { Log } from './log.ts';
 
 describe('Log', () => {
   const originalIsProd = Log.isProd;

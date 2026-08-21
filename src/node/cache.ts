@@ -1,6 +1,6 @@
 import { type Duration, isAfter, add } from 'date-fns';
-import { type FileJson } from './File.ts';
-import { Dir } from './Dir.ts';
+import { type FileJson } from './file/json.ts';
+import { Dir } from './dir.ts';
 
 export type CacheOptions<T> = {
   path?: string;

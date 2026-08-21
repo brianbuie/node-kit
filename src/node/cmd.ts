@@ -2,7 +2,7 @@ import { spawn, type SpawnOptionsWithoutStdio } from 'child_process';
 import { parseArgsStringToArgv as parseArgs } from 'string-argv';
 import { merge, flattenDeep } from 'lodash-es';
 
-export type Args = string | (string | number | null | undefined | Args)[];
+export type CmdArgs = string | (string | number | null | undefined | CmdArgs)[];
 
 /**
  * Spawn a child process for shell commands with `Cmd.run('command arg1=something arg2=2...")`
@@ -19,7 +19,7 @@ export class Cmd {
     this.bin = bin;
   };
 
-  static args = (args: Args): string[] => {
+  static args = (args: CmdArgs): string[] => {
     return typeof args === 'string'
       ? parseArgs(args)
       : parseArgs(
@@ -32,7 +32,7 @@ export class Cmd {
   /**
    * Spawn child process. If command doesn't include "/", `this.bin` path will be added to the beginning of it.
    */
-  static run = async (cmd: string, args: Args, opts?: SpawnOptionsWithoutStdio): Promise<string> => {
+  static run = async (cmd: string, args: CmdArgs, opts?: SpawnOptionsWithoutStdio): Promise<string> => {
     const options = merge({ timeout: 5 * 60 * 1000 }, opts);
     return new Promise((resolve, reject) => {
       let stdout = '';
@@ -56,7 +56,7 @@ export class Cmd {
   /**
    * Run ffmpeg for video processing (ffmpeg needs to be installed separately). Specify ffmpeg location with `FFMPEG_PATH` environment variable.
    */
-  static ffmpeg = async (args: Args) => {
+  static ffmpeg = async (args: CmdArgs) => {
     const cmd = process.env.FFMPEG_PATH || 'ffmpeg';
     return this.run(cmd, ['-y', '-loglevel', 'error', args], { timeout: 10 * 60 * 1000 });
   };
@@ -64,7 +64,7 @@ export class Cmd {
   /**
    * Use ffprobe to get video stream dimensions (ffprobe needs to be installed separately). Specify ffmpeg location with `FFPROBE_PATH` environment variable.
    */
-  static ffprobe = async (args: Args) => {
+  static ffprobe = async (args: CmdArgs) => {
     const cmd = process.env.FFPROBE_PATH || 'ffprobe';
     return this.run(cmd, ['-v', 'error', args], { timeout: 10 * 60 * 1000 });
   };

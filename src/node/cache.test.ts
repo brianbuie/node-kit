@@ -1,7 +1,7 @@
 import { describe, it } from 'node:test';
 import assert from 'node:assert';
-import { Cache } from './Cache.ts';
-import { temp } from './Dir.ts';
+import { Cache } from './cache.ts';
+import { temp } from './dir.ts';
 
 describe('Cache', () => {
   it('uses an explicitly provided directory', () => {

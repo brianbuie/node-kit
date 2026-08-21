@@ -1,6 +1,6 @@
 import { describe, it } from 'node:test';
 import assert from 'node:assert';
-import { Fetcher } from './Fetcher.ts';
+import { Fetcher } from './fetcher.ts';
 
 describe('Fetcher', () => {
   const statusApi = new Fetcher({ base: 'https://mock.httpstatus.io' });

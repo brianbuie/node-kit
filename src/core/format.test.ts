@@ -1,6 +1,6 @@
 import { describe, it } from 'node:test';
 import assert from 'node:assert';
-import { Format } from './Format.ts';
+import { Format } from './format.ts';
 
 describe('Format', () => {
   it('date', () => {
