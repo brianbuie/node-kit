@@ -57,6 +57,58 @@ describe('Dir', () => {
     assert(txt.includes('test.txt'));
   });
 
+  it('Lists files, directories, and typed files', () => {
+    const contents = testDir.tempDir('contents');
+    const child = contents.dir('child');
+    const txt = contents.file('notes.txt');
+    const csv = contents.file('rows.csv');
+    const json = contents.file('data.json');
+    const ndjson = contents.file('events.ndjson');
+
+    child.path;
+    txt.writeText('notes');
+    csv.writeText('name\nAda');
+    json.writeText('{}');
+    ndjson.writeText('{}');
+
+    assert.deepEqual(
+      contents.dirs.map(dir => dir.path),
+      [child.path],
+    );
+    assert.deepEqual(
+      contents.files.map(file => file.path).sort(),
+      [txt, csv, json, ndjson].map(file => file.path).sort(),
+    );
+    assert.deepEqual(
+      contents.txtFiles.map(file => file.path),
+      [txt.path],
+    );
+    assert.deepEqual(
+      contents.csvFiles.map(file => file.path),
+      [csv.path],
+    );
+    assert.deepEqual(
+      contents.jsonFiles.map(file => file.path),
+      [json.path],
+    );
+    assert.deepEqual(
+      contents.ndjsonFiles.map(file => file.path),
+      [ndjson.path],
+    );
+  });
+
+  it('Only clears temporary directories', () => {
+    const regular = new Dir(testDir.filepath('not-temporary'));
+    const temporary = testDir.tempDir('clearable');
+    const file = temporary.file('data.txt');
+
+    file.writeText('data');
+
+    assert.throws(() => regular.clear(), /Dir is not temporary/);
+    temporary.clear();
+    assert.deepEqual(temporary.contents, []);
+  });
+
   it('is extendable and chains methods correctly', () => {
     class Example extends Dir {
       get testFiles() {

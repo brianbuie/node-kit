@@ -22,7 +22,7 @@ export class Cache<T> {
     const dir = new Dir(path || '.cache', { temp: true });
     this.file = dir.file(key).json();
     this.ttl = typeof ttl === 'number' ? { minutes: ttl } : ttl || { minutes: 5 };
-    if (data) this.write(data);
+    if (data !== undefined) this.write(data);
   }
 
   write = (data: T) => {

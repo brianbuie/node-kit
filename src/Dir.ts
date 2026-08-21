@@ -133,7 +133,7 @@ export class Dir {
    * All files in this directory
    */
   get files(): File[] {
-    return this.contents.filter(f => f instanceof File);
+    return this.contents.filter(f => !(f instanceof Dir)) as File[];
   }
 
   /**

@@ -3,6 +3,23 @@ import assert from 'node:assert';
 import { Format } from './Format.ts';
 
 describe('Format', () => {
+  it('date', () => {
+    const date = new Date(2024, 0, 2, 3, 4, 5);
+
+    assert.match(Format.date('iso', date), /^2024-01-02T03:04:05/);
+    assert.equal(Format.date('ymd', date), '20240102');
+    assert.equal(Format.date('ymd-hm', date), '20240102-0304');
+    assert.equal(Format.date('ymd-hms', date), '20240102-030405');
+    assert.equal(Format.date('h:m:s', date), '03:04:05');
+    assert.equal(Format.date('MMM d, yyyy', date), 'Jan 2, 2024');
+  });
+
+  it('plural', () => {
+    assert.equal(Format.plural(1, 'file'), '1 file');
+    assert.equal(Format.plural(2, 'file'), '2 files');
+    assert.equal(Format.plural(2, 'person', 'people'), '2 people');
+  });
+
   it('round', () => {
     assert.equal(Format.round(1.22), '1');
     assert.equal(Format.round(1.55), '2');
