@@ -45,7 +45,21 @@ export default config;
 
 # Changelog
 
-## 1.0
+## 2.0.0
+
+- `Log` reverted to previous custom implementation, no more pino
+  - `Log.alert` (was `Log.fatal`)
+  - Fixed log levels for Google Cloud
+  - New `isGcloud` and `isProd` properties (defaults from `process.env`)
+- `Fetcher` added new options to override transport and delay methods
+- `Cache` uses config object instead of multiple args. Added options for `path`.
+- `TypeWriter` is now a separate export
+  - `quicktype-core` needs to be installed as a dependency in projects that use it
+  - Needs to be imported from "@brianbuie/node-kit/TypeWriter"
+- `File` refactored to `FileBase` that's inherited by all file types
+  - If projects relied on `instanceof File`, that won't work anymore.
+
+## 1.0.0
 
 - `File` Breaking changes,
   - Removed intermediate `FileType` class, all types now inherit from `File`
@@ -69,7 +83,7 @@ export default config;
   - `Cmd.ffmpeg` and `Cmd.ffprobe` added with basic config for handling output (ffmpeg and ffprobe need to be installed separately)
 - New `FileTypeImage` and `FileTypeVideo` extensions with methods to get media dimensions
 
-## 0.16
+## 0.16.0
 
 - `Log` rewritten using [pino](https://github.com/pinojs/pino) under the hood. Will require updates in projects:
   - `message` is still first argument, but second argument should include all details, instead of using an arbitrary number of args
@@ -91,7 +105,7 @@ export default config;
 - `Dir` uses YYYYMMDD as default name
 - `File` uses YYYYMMDD-HHmmss as default name
 
-## 0.15
+## 0.15.0
 
 - `TypeWriter` option for `outFile`, defaults to `[moduleName].types.ts`
 
