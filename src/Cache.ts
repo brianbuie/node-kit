@@ -2,6 +2,13 @@ import { type Duration, isAfter, add } from 'date-fns';
 import { type FileJson } from './File.ts';
 import { Dir } from './Dir.ts';
 
+export type CacheOptions<T> = {
+  path?: string;
+  ttl?: number | Duration;
+  key: string;
+  data?: T;
+};
+
 /**
  * Save data to a local file with an expiration.
  * Fresh/stale data is returned with a flag for if it's fresh or not,
@@ -11,11 +18,11 @@ export class Cache<T> {
   file: FileJson<{ savedAt: string; data: T }>;
   ttl: Duration;
 
-  constructor(key: string, ttl: number | Duration, initialData?: T) {
-    const dir = new Dir('.cache', { temp: true });
+  constructor({ path, key, ttl, data }: CacheOptions<T>) {
+    const dir = new Dir(path || '.cache', { temp: true });
     this.file = dir.file(key).json();
-    this.ttl = typeof ttl === 'number' ? { minutes: ttl } : ttl;
-    if (initialData) this.write(initialData);
+    this.ttl = typeof ttl === 'number' ? { minutes: ttl } : ttl || { minutes: 5 };
+    if (data) this.write(data);
   }
 
   write = (data: T) => {
