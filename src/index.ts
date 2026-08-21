@@ -1,7 +1,7 @@
 export { Dir, type DirOptions, temp, cwd } from './Dir.ts';
 export { Cache } from './Cache.ts';
 export { Cmd, type Args } from './Cmd.ts';
-export { Fetcher, type Route, type Query, type FetchOptions } from './Fetcher.ts';
+export { Fetcher, type Route, type Query, type FetchOptions, type FetchTransport, type FetchDelay } from './Fetcher.ts';
 export { File, FileJson, FileNdjson, FileCsv, FileImage, FileVideo, type FileCsvOptions } from './File.ts';
 export { Format } from './Format.ts';
 export { Log } from './Log.ts';
