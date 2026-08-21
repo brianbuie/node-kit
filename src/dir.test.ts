@@ -1,6 +1,6 @@
 import { describe, it } from 'node:test';
 import assert from 'node:assert';
-import { temp, Dir, type DirOptions } from './dir.ts';
+import { temp, Dir } from './dir.ts';
 
 describe('Dir', () => {
   const testDir = temp.dir('dir-test');

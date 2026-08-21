@@ -18,13 +18,13 @@
   "sideEffects": false,
   "exports": {
     ".": {
-      "types": "./dist/index.d.mts",
-      "node": "./dist/index.mjs",
-      "default": "./dist/core.mjs"
+      "types": "./dist/node.d.mts",
+      "node": "./dist/node.mjs",
+      "default": "./dist/neutral.mjs"
     },
-    "./core": {
-      "types": "./dist/core.d.mts",
-      "default": "./dist/core.mjs"
+    "./neutral": {
+      "types": "./dist/neutral.d.mts",
+      "default": "./dist/neutral.mjs"
     },
     "./type-writer": {
       "types": "./dist/type-writer.d.mts",

@@ -2,7 +2,7 @@ import * as fs from 'node:fs';
 import * as path from 'node:path';
 import sanitizeFilename from 'sanitize-filename';
 import { File } from './file/file.ts';
-import { Format } from '../core/format.ts';
+import { Format } from './format.ts';
 
 export type DirOptions = {
   temp?: boolean;
