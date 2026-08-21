@@ -5,6 +5,8 @@ import { Fetcher } from './Fetcher.ts';
 describe('Fetcher', () => {
   const statusApi = new Fetcher({ base: 'https://mock.httpstatus.io' });
 
+  const response = (status: number): Response => new Response(null, { status });
+
   it('Makes URL', () => {
     const route = '/example/route';
     const [url] = statusApi.buildUrl(route);
@@ -72,9 +74,23 @@ describe('Fetcher', () => {
   });
 
   it('Throws on bad request', async () => {
+    const requests: Request[] = [];
+    const api = new Fetcher({
+      base: 'https://example.org',
+      retries: 1,
+      retryDelay: 25,
+      transport: async request => {
+        requests.push(request);
+        return response(404);
+      },
+      delay: async milliseconds => {
+        assert(milliseconds === 25);
+      },
+    });
     try {
-      await statusApi.fetch('/404', { retries: 0 });
+      await api.fetch('/404');
     } catch (e) {
+      assert(requests.length === 2);
       return;
     }
     throw new Error('Ignored bad request');

@@ -6,6 +6,9 @@ export type Route = string | URL;
 type QueryVal = string | number | boolean | null | undefined;
 export type Query = Record<string, QueryVal | QueryVal[]>;
 
+export type FetchTransport = (request: Request) => Promise<Response>;
+export type FetchDelay = (milliseconds: number) => Promise<void>;
+
 export type FetchOptions = RequestInit & {
   base?: string;
   query?: Query;
@@ -14,6 +17,8 @@ export type FetchOptions = RequestInit & {
   timeout?: number;
   retries?: number;
   retryDelay?: number;
+  transport?: FetchTransport;
+  delay?: FetchDelay;
 };
 
 /**
@@ -29,6 +34,8 @@ export class Fetcher {
       timeout: 60000,
       retries: 0,
       retryDelay: 3000,
+      transport: fetch,
+      delay: milliseconds => new Promise(resolve => setTimeout(resolve, milliseconds)),
       ...opts,
     };
   }
@@ -76,7 +83,7 @@ export class Fetcher {
    */
   buildRequest = (route: Route, opts: FetchOptions = {}): [Request, FetchOptions, string] => {
     const mergedOptions = merge({}, this.defaultOptions, opts);
-    const { query, data, timeout, retries, ...init } = mergedOptions;
+    const { query, data, timeout, retries, retryDelay, transport, delay, ...init } = mergedOptions;
     init.headers = this.buildHeaders(route, mergedOptions);
     if (data) {
       init.headers['content-type'] = init.headers['content-type'] || 'application/json';
@@ -103,16 +110,16 @@ export class Fetcher {
     while (attempt < maxAttempts) {
       attempt++;
       const [req] = this.buildRequest(route, opts);
-      const res = await fetch(req)
+      const res = await options.transport!(req)
         .then(r => {
           if (!r.ok) throw new Error(r.statusText);
           return r;
         })
         .catch(async error => {
           if (attempt < maxAttempts) {
-            const wait = attempt * 3000;
+            const wait = attempt * (options.retryDelay || 0);
             console.warn(`${req.method} ${req.url} (attempt ${attempt} of ${maxAttempts})`, error);
-            await new Promise(resolve => setTimeout(resolve, wait));
+            await options.delay!(wait);
           } else {
             throw new Error(error);
           }
