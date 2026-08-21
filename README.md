@@ -45,6 +45,12 @@ export default config;
 
 # Changelog
 
+## 2.0.5
+
+- Node and platform neutral pieces are exported separately now
+  - All should be importable from `@brianbuie/kit` in node
+  - If needed, import platform neutral parts (`Fetcher`, `Format`, `snapshot`, `timeout`) from `@brianbuie/kit/neutral`
+
 ## 2.0.3
 
 - Changed name from `@brianbuie/node-kit` to just `@brianbuie/kit`
