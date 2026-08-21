@@ -17,8 +17,9 @@
   "type": "module",
   "exports": {
     ".": {
-      "default": "./dist/index.mjs",
-      "types": "./dist/index.d.mts"
+      "types": "./dist/index.d.mts",
+      "import": "./dist/index.mjs",
+      "default": "./dist/index.mjs"
     }
   },
   "files": [

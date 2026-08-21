@@ -218,7 +218,7 @@ export class FileNdjson<T extends object> extends File {
 
 type Key<T extends object> = keyof T;
 
-type FileCsvOptions<Row extends object> = {
+export type FileCsvOptions<Row extends object> = {
   parseNumbers?: boolean;
   parseBooleans?: boolean;
   parseNulls?: boolean;
