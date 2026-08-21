@@ -5,7 +5,7 @@ import * as qt from 'quicktype-core';
 /**
  * IMPORTANT: [quicktype-core](https://github.com/glideapps/quicktype) needs to be installed in the project.
  * @example
- * import { TypeWriter } from '@brianbuie/node-kit/TypeWriter'
+ * import { TypeWriter } from '@brianbuie/kit/TypeWriter'
  * const group = new TypeWriter('Group');
  * await types.addMember('Thing', [{ a: 1 }, { a: 2, b: 1 }]);
  * await types.toFile();

@@ -1,12 +1,12 @@
 {
-  "name": "@brianbuie/node-kit",
-  "version": "2.0.2",
+  "name": "@brianbuie/kit",
+  "version": "2.0.3",
   "license": "Unlicense",
-  "description": "Basic tools for quick node.js projects",
+  "description": "Basic tools for quick projects",
   "author": "Brian Buie <brian@buie.dev>",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/brianbuie/node-kit.git"
+    "url": "git+https://github.com/brianbuie/kit.git"
   },
   "scripts": {
     "build": "prettier . -w && tsdown",

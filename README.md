@@ -1,19 +1,17 @@
-### ⚠️ This package has moved! [github.com/brianbuie/kit](https://github.com/brianbuie/kit)
+# Kit
 
-# ~~Node Kit~~ → Kit
-
-Basic tools for quick node.js projects
+Basic tools for quick projects
 
 # Installing
 
-[![NPM Version](https://img.shields.io/npm/v/%40brianbuie%2Fnode-kit)](https://www.npmjs.com/package/@brianbuie/node-kit)
+[![NPM Version](https://img.shields.io/npm/v/%40brianbuie%2Fkit)](https://www.npmjs.com/package/@brianbuie/kit)
 
 ```
-npm add @brianbuie/node-kit
+npm add @brianbuie/kit
 ```
 
 ```ts
-import { Fetcher, Log } from '@brianbuie/node-kit';
+import { Fetcher, Log } from '@brianbuie/kit';
 ```
 
 ## Extending Config
@@ -22,20 +20,20 @@ import { Fetcher, Log } from '@brianbuie/node-kit';
 
 ```json
 {
-  "extends": "./node_modules/@brianbuie/node-kit/tsconfig.json"
+  "extends": "./node_modules/@brianbuie/kit/tsconfig.json"
 }
 ```
 
 ### prettier.config.js
 
 ```js
-export * from './node_modules/@brianbuie/node-kit/prettier.config.js';
+export * from './node_modules/@brianbuie/kit/prettier.config.js';
 ```
 
 Or make changes:
 
 ```js
-import baseConfig from './node_modules/@brianbuie/node-kit/prettier.config.js';
+import baseConfig from './node_modules/@brianbuie/kit/prettier.config.js';
 
 const config = {
   ...baseConfig,
@@ -47,6 +45,10 @@ export default config;
 
 # Changelog
 
+## 2.0.3
+
+- Changed name from `@brianbuie/node-kit` to just `@brianbuie/kit`
+
 ## 2.0.0
 
 - `Log` reverted to previous custom implementation, no more pino
@@ -57,7 +59,7 @@ export default config;
 - `Cache` uses config object instead of multiple args. Added options for `path`.
 - `TypeWriter` is now a separate export
   - `quicktype-core` needs to be installed as a dependency in projects that use it
-  - Needs to be imported from "@brianbuie/node-kit/TypeWriter"
+  - Needs to be imported from "@brianbuie/kit/TypeWriter"
 - `File` refactored to `FileBase` that's inherited by all file types
   - If projects relied on `instanceof File`, that won't work anymore.
 
