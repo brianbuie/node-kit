@@ -45,6 +45,10 @@ export default config;
 
 # Changelog
 
+## 2.0.6
+
+- Switch to pnpm
+
 ## 2.0.5
 
 - Node and platform neutral pieces are exported separately now
@@ -124,13 +128,13 @@ export default config;
 Typecheck and run all tests from `*.test.ts` files
 
 ```
-npm run test
+pnpm test
 ```
 
 Format with Prettier, generate API docs for this Readme
 
 ```
-npm run build
+pnpm run build
 ```
 
 Release a new version
@@ -141,5 +145,5 @@ Release a new version
 - Triggers github workflow that publishes to npm
 
 ```
-npm version [patch|minor|major]
+pnpm version [patch|minor|major]
 ```

@@ -11,9 +11,10 @@
   "scripts": {
     "build": "prettier . -w && tsdown",
     "test": "tsc && node --test \"src/**/*.test.ts\" --quiet",
-    "preversion": "npm test && npm run build",
+    "preversion": "pnpm test && pnpm run build",
     "postversion": "git push --follow-tags"
   },
+  "packageManager": "pnpm@11.22.0",
   "type": "module",
   "sideEffects": false,
   "exports": {
