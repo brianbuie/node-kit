@@ -45,6 +45,10 @@ export default config;
 
 # Changelog
 
+## 2.0.7
+
+- Fix incorrect export for `@brianbuie/kit/neutral`
+
 ## 2.0.6
 
 - Switch to pnpm

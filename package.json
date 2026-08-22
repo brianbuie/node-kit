@@ -4,42 +4,12 @@
   "license": "Unlicense",
   "description": "Basic tools for quick projects",
   "author": "Brian Buie <brian@buie.dev>",
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/brianbuie/kit.git"
-  },
   "scripts": {
     "build": "prettier . -w && tsdown",
     "test": "tsc && node --test \"src/**/*.test.ts\" --quiet",
-    "preversion": "pnpm test && pnpm run build",
+    "test:pack": "pnpm pack --out .pack/kit.tgz && attw .pack/kit.tgz --profile esm-only",
+    "preversion": "pnpm test && pnpm run build && pnpm test:pack",
     "postversion": "git push --follow-tags"
-  },
-  "packageManager": "pnpm@11.22.0",
-  "type": "module",
-  "sideEffects": false,
-  "exports": {
-    ".": {
-      "types": "./dist/node.d.mts",
-      "node": "./dist/node.mjs",
-      "default": "./dist/neutral.mjs"
-    },
-    "./neutral": {
-      "types": "./dist/neutral.d.mts",
-      "default": "./dist/neutral.mjs"
-    },
-    "./type-writer": {
-      "types": "./dist/type-writer.d.mts",
-      "default": "./dist/type-writer.mjs"
-    }
-  },
-  "files": [
-    "src",
-    "dist",
-    "tsconfig.json",
-    "prettier.config.js"
-  ],
-  "engines": {
-    "node": ">=24"
   },
   "dependencies": {
     "@types/lodash-es": "^4.17.12",
@@ -58,6 +28,7 @@
     "string-argv": "^0.3.2"
   },
   "devDependencies": {
+    "@arethetypeswrong/cli": "^0.18.5",
     "prettier": "^3.7.4",
     "quicktype-core": "^23.2.6",
     "tsdown": "^0.16.6",
@@ -70,5 +41,36 @@
     "quicktype-core": {
       "optional": true
     }
-  }
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/node.d.mts",
+      "node": "./dist/node.mjs",
+      "default": "./dist/neutral.js"
+    },
+    "./neutral": {
+      "types": "./dist/neutral.d.ts",
+      "default": "./dist/neutral.js"
+    },
+    "./type-writer": {
+      "types": "./dist/type-writer.d.mts",
+      "default": "./dist/type-writer.mjs"
+    }
+  },
+  "files": [
+    "src",
+    "dist",
+    "tsconfig.json",
+    "prettier.config.js"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/brianbuie/kit.git"
+  },
+  "engines": {
+    "node": ">=24"
+  },
+  "packageManager": "pnpm@11.22.0",
+  "type": "module",
+  "sideEffects": false
 }
