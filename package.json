@@ -5,7 +5,7 @@
   "description": "Basic tools for quick projects",
   "author": "Brian Buie <brian@buie.dev>",
   "scripts": {
-    "build": "prettier . -w && tsdown",
+    "build": "prettier ./src -w && tsdown",
     "test": "tsc && node --test \"src/**/*.test.ts\" --quiet",
     "test:pack": "pnpm pack --out .pack/kit.tgz && attw .pack/kit.tgz --profile esm-only",
     "preversion": "pnpm test && pnpm run build && pnpm test:pack",
